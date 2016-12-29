@@ -430,7 +430,424 @@ var calculateBonus = function(func, salary) {
     return func(salary);
 
 };
-calculateBonus(S, 10000);// 输出:40000
+calculateBonus(S, 10000); // 输出:40000
 //--------------------------------------------------
 //3，代理模式
+//代理模式是为一个对象提供一个代用品或占位符,以便控制对它的访问，加一个中转的站点或桥梁，比如：红娘，代理商等。
 //--------------------------------------------------
+//保护代理：帮主体过滤不必要的请求。如，使用缓存，帮服务器过滤不必要的请求，或者如防火墙代理
+//虚拟代理：等主体状态好的时候发送请求。如：等服务器空闲的时候发送请求数据（http请求合并）。图片预加载等惰性加载
+//虚拟代理示例：(先用loading.gif占位)
+var myImage = (function() {
+    var imgNode = document.createElement('img');
+    document.body.appendChild(imgNode);
+    return {
+        setSrc: function(src) {
+            imgNode.src = src;
+        }
+    };
+})();
+var proxyImage = (function() {
+    var img = new Image();
+    img.onload = function() {
+        myImage.setSrc(this.src);
+    };
+    return {
+        setSrc: function(src) {
+            myImage.setSrc('file:// /C:/Users/svenzeng/Desktop/loading.gif');
+            img.src = src;
+        }
+    };
+})();
+proxyImage.setSrc('http:// imgcache.qq.com/music/photo/k/000GGDys0yA0Nk.jpg');
+//缓存代理：为一些开销大的运算结果提供暂时的存储
+/**************** 计算乘积 *****************/
+var mult = function() {
+    var a = 1;
+    for (var i = 0, l = arguments.length; i < l; i++) {
+        a = a * arguments[i];
+    }
+    return a;
+};
+/**************** 计算加和 *****************/
+var plus = function() {
+    var a = 1;
+    for (var i = 0, l = arguments.length; i < l; i++) {
+        a = a + arguments[i];
+    }
+    return a;
+};
+/**************** 创建缓存代理的工厂 *****************/
+var createProxyFactory = function(fn) {
+    var cache = {};
+    return function() {
+        var args = Array.prototype.join.call(arguments, ',');
+        if (args in cache) {
+            return cache[args];
+        }
+        var result = cache[args] = fn.apply(this, arguments);
+        return result;
+    };
+};
+var proxyMult = createProxyFactory(mult),
+    proxyPlus = createProxyFactory(plus);
+
+alert(proxyMult(1, 2, 3, 4)); // 输出:24
+alert(proxyMult(1, 2, 3, 4)); // 输出:24
+alert(proxyPlus(1, 2, 3, 4)); // 输出:10
+alert(proxyPlus(1, 2, 3, 4)); // 输出:10
+//总结：缓存代理使用比较广泛：（不胜枚举）
+// ajax请求数据缓存，
+// 防火墙代理，
+// 翻墙代理
+// 远程代理
+// 保护代理
+// 只能引用代理
+// 写时复制代理
+//-----------------------------------------------
+//4,迭代器模式:提供一种方法顺序访问一个聚合对象中的各个元素,而又不需要暴露该对象的内部表示
+//内部迭代器：具体实现在内部。
+var each = function(ary, callback) {
+    for (var i = 0, l = ary.length; i < l; i++) {
+        callback.call(ary[i], i, ary[i]);
+
+    }
+};
+each([1, 2, 3], function(i, n) {
+    alert([i, n]);
+});
+//外部迭代器：明显的调用下一次迭代
+var Iterator = function(obj) {
+    var current = 0;
+    var next = function() {
+        current += 1;
+    };
+    var isDone = function() {
+        return current >= obj.length;
+    };
+    var getCurrItem = function() {
+        return obj[current];
+    };
+    return {
+        next: next,
+        isDone: isDone,
+        getCurrItem: getCurrItem
+    };
+};
+var compare = function(iterator1, iterator2) {
+    while (!iterator1.isDone() && !iterator2.isDone()) {
+        if (iterator1.getCurrItem() !== iterator2.getCurrItem()) {
+            throw new Error('iterator1 和 iterator2 不相等');
+        }
+        iterator1.next();
+        iterator2.next();
+    }
+    console.log('iterator1 和 iterator2 相等');
+};
+var iterator1 = Iterator([1, 2, 3]);
+var iterator2 = Iterator([1, 2, 3]);
+compare(iterator1, iterator2); // 输出:iterator1 和 iterator2 相等
+
+
+//迭代器模式的应用举例:文件上传
+var getActiveUploadObj = function() {
+    try {
+        return new ActiveXObject("TXFTNActiveX.FTNUpload"); // IE 上传控件
+    } catch (e) {
+        return false;
+    }
+};
+var getFlashUploadObj = function() {
+    if (supportFlash()) { // supportFlash 函数未提供
+        var str = '<object type="application/x-shockwave-flash"></object>';
+        return $(str).appendTo($('body'));
+    }
+    return false;
+};
+
+var getFormUpladObj = function() {
+    var str = '<input name="file" type = "file" class = "ui-file" / > '; // 表单上传
+    return $(str).appendTo($('body'));
+};
+var iteratorUploadObj = function() {
+    for (var i = 0, fn; fn = arguments[i++];) {
+        var uploadObj = fn();
+        if (uploadObj !== false) {
+            return uploadObj;
+        }
+    }
+};
+var uploadObj = iteratorUploadObj(getActiveUploadObj, getFlashUploadObj, getFormUpladObj);
+//es6中的迭代器，为了解决回调和异步无线循环和调用的问题，es6引入新的遍历器和解决方案：
+//如：Iterator，for..in,,promise,Generator等。详见：http://es6.ruanyifeng.com/#docs/async
+
+//总结：随着es6，nodejs的发展，迭代器将大放光彩！
+
+//-----------------------------------------------
+//5，发布—订阅模式又叫观察者模式,它定义对象间的一种一对多的依赖关系,当一个对象的状 态发生改变时,
+//所有依赖于它的对象都将得到通知。在 JavaScript 开发中,我们一般用事件模型 来替代传统的发布—订阅模式
+//[1]售楼处与买房者
+var Event = (function() {
+    var clientList = {},
+        listen,
+        trigger,
+        remove;
+    listen = function(key, fn) {
+        //订阅
+        if (!clientList[key]) {
+            clientList[key] = [];
+        }
+        clientList[key].push(fn);
+    };
+    trigger = function() {
+        //发布
+        var key = Array.prototype.shift.call(arguments),
+            fns = clientList[key];
+        if (!fns || fns.length === 0) {
+            return false;
+        }
+        for (var i = 0, fn; fn = fns[i++];) {
+            fn.apply(this, arguments);
+        }
+    };
+    remove = function(key, fn) {
+        //取消订阅
+        var fns = clientList[key];
+        if (!fns) {
+            return false;
+        }
+
+        if (!fn) {
+            fns && (fns.length = 0);
+        } else {
+            for (var l = fns.length - 1; l >= 0; l--) {
+                var _fn = fns[l];
+                if (_fn === fn) {
+                    fns.splice(l, 1);
+                }
+            }
+        }
+    };
+    return {
+        listen: listen,
+        trigger: trigger,
+        remove: remove
+    };
+})();
+
+Event.listen('squareMeter88', fn1 = function(price) { // 小明订阅消息
+    console.log('价格= ' + price);
+});
+Event.listen('squareMeter88', fn2 = function(price) { // 小红订阅消息
+    console.log('价格= ' + price);
+});
+Event.remove('squareMeter88', fn1); // 删除小明的订阅
+Event.trigger('squareMeter88', 2000000); // 输出:2000000
+//[2]网站登录后初始化
+var login = {
+    clientList: [],
+    listen: function(key, fn) {
+        if (!this.clientList[key]) {
+            this.clientList[key] = [];
+        }
+        this.clientList[key].push(fn); // 订阅的消息添加进缓存列表
+    },
+    trigger: function() {
+        var key = Array.prototype.shift.call(arguments), // (1);
+            fns = this.clientList[key];
+        if (!fns || fns.length === 0) { // 如果没有绑定对应的消息
+            return false;
+        }
+        for (var i = 0, fn; fn = fns[i++];) {
+            fn.apply(this, arguments); // (2) // arguments 是 trigger 时带上的参数
+        }
+    }
+};
+
+var header = (function() { // header 模块
+    login.listen('loginSucc', function(data) {
+        header.setAvatar(data.avatar);
+    });
+    return {
+        setAvatar: function(data) {
+            console.log('设置 header 模块的头像');
+        }
+    };
+})();
+
+//
+var nav = (function() { //nav 模块
+    login.listen('loginSucc', function(data) {
+        nav.setAvatar(data.avatar);
+    });
+    return {
+        setAvatar: function(avatar) {
+            console.log('设置 nav 模块的头像');
+        }
+    };
+})();
+var address = (function() { // nav 模块
+    login.listen('loginSucc', function(obj) {
+        address.refresh(obj);
+    });
+    return {
+        refresh: function(avatar) {
+            console.log('刷新收货地址列表');
+        }
+    };
+})();
+$.ajax('http:// xxx.com?login', function(data) { // 登录成功
+    login.trigger('loginSucc', data); // 发布登录成功的消息
+});
+//3,模块间的通信
+// <!DOCTYPE html>
+// < html >
+//     <body >
+//       <button id = "count" > 点我 < /button> <div id="show"></div >
+//     </body>
+//     <script type = "text/JavaScript" >
+var a = (function() {
+    var count = 0;
+    var button = document.getElementById('count');
+
+    button.onclick = function() {
+        Event.trigger('add', count++);
+    };
+})();
+var b = (function() {
+    var div = document.getElementById('show');
+    Event.listen('add', function(count) {
+        div.innerHTML = count;
+    });
+})();
+// </script>
+// </html >
+
+
+//4,以上的都是先订阅后发布。还有全局变量的覆盖问题。下边解决类似qq离线信息提示和命名空间的事情
+var Event = (function() {
+    var global = this,
+        Event,
+        _default = 'default';
+
+    Event = function() {
+        var _listen,
+            _trigger,
+            _remove,
+            _slice = Array.prototype.slice,
+            _shift = Array.prototype.shift,
+            _unshift = Array.prototype.unshift,
+            namespaceCache = {},
+            _create,
+            find,
+            each = function(ary, fn) {
+                var ret;
+                for (var i = 0, l = ary.length; i < l; i++) {
+
+                    var n = ary[i];
+                    ret = fn.call(n, i, n);
+                }
+                return ret;
+            };
+        _listen = function(key, fn, cache) {
+            if (!cache[key]) {
+                cache[key] = [];
+            }
+            cache[key].push(fn);
+        };
+        _remove = function(key, cache, fn) {
+            if (cache[key]) {
+                if (fn) {
+                    for (var i = cache[key].length; i >= 0; i--) {
+                        if (cache[key][i] === fn) {
+                            cache[key].splice(i, 1);
+                        }
+                    }
+                } else {
+                    cache[key] = [];
+                }
+            }
+        };
+
+        _trigger = function() {
+            var cache = _shift.call(arguments),
+                key = _shift.call(arguments),
+                args = arguments,
+                _self = this,
+                ret, stack = cache[key];
+            if (!stack || !stack.length) {
+                return;
+            }
+
+            return each(stack, function() {
+                return this.apply(_self, args);
+            });
+        };
+        _create = function(vnamespace) {
+            var namespace = vnamespace || _default;
+            var cache = {},
+                offlineStack = [],
+                ret = {
+                    listen: function(key, fn, last) {
+                        _listen(key, fn, cache);
+                        if (offlineStack === null) {
+                            return;
+                        }
+                        if (last === 'last') {
+                            offlineStack.length && offlineStack.pop()();
+                        } else {
+                            each(offlineStack, function() {
+                                this();
+                            });
+                        }
+                        offlineStack = null;
+                    },
+                    one: function(key, fn, last) {
+                        _remove(key, cache);
+                        this.listen(key, fn, last);
+                    },
+                    remove: function(key, fn) {
+                        _remove(key, cache, fn);
+                    },
+                    trigger: function() {
+                        var fn, args,
+                            _self = this;
+                        _unshift.call(arguments, cache);
+                        args = arguments;
+                        fn = function() {
+                            return _trigger.apply(_self, args);
+                        };
+                        if (offlineStack) {
+                            return offlineStack.push(fn);
+                        }
+                        return fn();
+                    }
+                };
+            return namespace ?
+                (namespaceCache[namespace] ? namespaceCache[namespace] :
+                    namespaceCache[namespace] = ret) : ret;
+        };
+        return {
+            create: _create,
+            one: function(key, fn, last) {
+                var event = this.create();
+                event.one(key, fn, last);
+            },
+            remove: function(key, fn) {
+                var event = this.create();
+                event.remove(key, fn);
+            },
+            listen: function(key, fn, last) {
+                var event = this.create();
+                event.listen(key, fn, last);
+            },
+            trigger: function() {
+                var event = this.create();
+                event.trigger.apply(this, arguments);
+            }
+        };
+    }();
+    return Event;
+})();
+//总结：缺点是会消耗一定时间和内存，所以好合理运用
+//-----------------------------------------------
