@@ -851,3 +851,237 @@ var Event = (function() {
 })();
 //总结：缺点是会消耗一定时间和内存，所以好合理运用
 //-----------------------------------------------
+//6,命令模式：指的是一个执行某些特定事情的指令。并不需要知道实现细节。如：单击事件处理。键盘操作,自动化测试，智能家居等。
+//宏命令---一组命令的集合,批量执行
+var MacroCommand = function() {
+    return {
+        commandsList: [],
+        add: function(command) {
+            this.commandsList.push(command);
+        },
+        execute: function() {
+            for (var i = 0, command; command = this.commandsList[i++];) {
+                command.execute();
+            }
+        }
+    };
+};
+
+var macroCommand = MacroCommand();
+macroCommand.add(closeDoorCommand);
+macroCommand.add(openPcCommand);
+macroCommand.add(openQQCommand);
+
+macroCommand.execute();
+//-----------------------------------------------
+//7，组合模式：
+// 应用场合：
+// [1]表示对象的部分-整体层次结构。组合模式可以方便地构造一棵树来表示对象的部分-整 体结构。
+// 特别是我们在开发期间不确定这棵树到底存在多少层次的时候。
+// 在树的构造最 终完成之后,只需要通过请求树的最顶层对象,便能对整棵树做统一的操作。
+// 在组合模 式中增加和删除树的节点非常方便,并且符合开放封闭原则。
+// [2]客户希望统一对待树中的所有对象。组合模式使客户可以忽略组合对象和叶对象的区别, 客户在面对这棵树的时候,
+// 不用关心当前正在处理的对象是组合对象还是叶对象,也就 不用写一堆 if、else 语句来分别处理它们。
+// 组合对象和叶对象会各自做自己正确的事情, 这是组合模式最重要的能力
+//-----------------------------------------------
+//应用举例：扫描文件夹
+var File = function(name) {
+    this.name = name;
+    this.parent = null;
+};
+File.prototype.add = function() {
+    throw new Error('不能添加在文件下面');
+};
+File.prototype.scan = function() {
+    console.log('开始扫描文件: ' + this.name);
+};
+File.prototype.remove = function() {
+    if (!this.parent) { //根节点或者树外的游离节点
+        return;
+    }
+    for (var files = this.parent.files, l = files.length - 1; l >= 0; l--) {
+        var file = files[l];
+        if (file === this) {
+            files.splice(l, 1);
+        }
+    }
+};
+
+var folder = new Folder('学习资料');
+var folder1 = new Folder('JavaScript');
+var file1 = new Folder('深入浅出 Node.js');
+
+folder1.add(new File('JavaScript 设计模式与开发实践'));
+folder.add(folder1);
+folder.add(file1);
+folder1.remove(); //移除文件夹 folder.scan();
+//-----------------------------------------------
+//8，模板方法模式：是一种典型的通过封装变化提高系统扩展性的设计模式。以泡咖啡和茶为例。如下四步：
+// (1) 把水煮沸
+// (2) 用沸水冲泡饮料
+// (3) 把饮料倒进杯子
+// (4) 加调料
+//--------------------------------
+//【1】java实现：
+// Java 代码
+public abstract class Beverage { // 饮料抽象类
+
+    // 模板方法
+    // 具体方法 boilWater
+
+    final void init() {
+        boilWater();
+        brew();
+        pourInCup();
+        addCondiments();
+    }
+    void boilWater() {
+        System.out.println("把水煮沸");
+    }
+    abstract void brew(); // 抽象方法 brew
+    abstract void addCondiments(); // 抽象方法 addCondiments
+    abstract void pourInCup(); // 抽象方法 pourInCup
+}
+
+public class Coffee extends Beverage { // Coffee 类 @Override
+    void brew() { // 子类中重写 brew 方法
+        System.out.println("用沸水冲泡咖啡");
+    }
+    @Override
+    void pourInCup() { // 子类中重写 pourInCup 方法
+        System.out.println("把咖啡倒进杯子");
+    }
+    @Override
+    void addCondiments() { // 子类中重写 addCondiments 方法
+        System.out.println("加糖和牛奶");
+    }
+}
+public class Tea extends Beverage { // Tea 类 @Override
+    void brew() { // 子类中重写 brew 方法
+        System.out.println("用沸水浸泡茶叶");
+    }
+    @Override
+
+    void pourInCup() { // 子类中重写 pourInCup 方法
+        System.out.println("把茶倒进杯子");
+    }
+    @Override
+    void addCondiments() { // 子类中重写 addCondiments 方法
+        System.out.println("加柠檬");
+    }
+}
+public class Test {
+    private static void prepareRecipe(Beverage beverage) {
+        beverage.init();
+    }
+    public static void main(String args[]) {
+        Beverage coffee = new Coffee(); // 创建 coffee 对象
+        prepareRecipe(coffee); // 把水煮沸
+        // 用沸水冲泡咖啡
+        // 把咖啡倒进杯子
+        // 加糖和牛奶
+        Beverage tea = new Tea();
+        prepareRecipe(tea); // 把水煮沸
+        // 用沸水浸泡茶叶
+        // 把茶倒进杯子
+        // 加柠檬
+    }
+}
+//[2]javascript实现：
+var Beverage = function(param) {
+    var boilWater = function() {
+        console.log('把水煮沸');
+    };
+
+    var brew = param.brew || function() {
+
+        throw new Error('必须传递 brew 方法');
+    };
+    var pourInCup = param.pourInCup || function() {
+        throw new Error('必须传递 pourInCup 方法');
+    };
+    var addCondiments = param.addCondiments || function() {
+        throw new Error('必须传递 addCondiments 方法');
+    };
+    var F = function() {};
+    F.prototype.init = function() {
+        boilWater();
+
+        brew();
+        pourInCup();
+        addCondiments();
+    };
+    return F;
+};
+var Coffee = Beverage({
+    brew: function() {
+        console.log('用沸水冲泡咖啡');
+    },
+    pourInCup: function() {
+        console.log('把咖啡倒进杯子');
+    },
+    addCondiments: function() {
+        console.log('加糖和牛奶');
+    }
+});
+
+var Tea = Beverage({
+    brew: function() {
+        console.log('用沸水浸泡茶叶');
+    },
+    pourInCup: function() {
+        console.log('把茶倒进杯子');
+    },
+    addCondiments: function() {
+        console.log('加柠檬');
+    }
+});
+var coffee = new Coffee();
+coffee.init();
+var tea = new Tea();
+tea.init();
+//-----------------------------------------------
+// 9，享元模式：运用共享技术来有效支持大量细粒度的对象。
+// brif：为解决性能问题而生的模式,这跟大部分模式的诞生原因都不一样。在一个存在
+// 大量相似对象的系统中,享元模式可以很好地解决大量对象带来的性能问题。
+
+//通用对象池实现
+var objectPoolFactory = function(createObjFn) {
+    var objectPool = [];
+    return {
+        create: function() {
+            var obj = objectPool.length === 0 ?
+                createObjFn.apply(this, arguments) : objectPool.shift();
+            return obj;
+        },
+        recover: function(obj) {
+            objectPool.push(obj);
+
+        }
+    };
+};
+//现在利用 objectPoolFactory 来创建一个装载一些 iframe 的对象池:
+var iframeFactory = objectPoolFactory(function() {
+    var iframe = document.createElement('iframe');
+    document.body.appendChild(iframe);
+    iframe.onload = function() {
+        iframe.onload = null; // 防止 iframe 重复加载的 bug
+
+        iframeFactory.recover(iframe);
+        return iframe;
+    }
+});
+var iframe1 = iframeFactory.create();
+iframe1.src = 'http:// baidu.com';
+var iframe2 = iframeFactory.create();
+iframe2.src = 'http:// QQ.com';
+setTimeout(function() {
+    var iframe3 = iframeFactory.create();
+    iframe3.src = 'http:// 163.com';
+}, 3000);
+//总结：关键词：大量相似对象  共享
+//-----------------------------------------------
+//-----------------------------------------------
+//-----------------------------------------------
+//-----------------------------------------------
+//-----------------------------------------------
