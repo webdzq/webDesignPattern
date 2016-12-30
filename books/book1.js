@@ -1081,7 +1081,72 @@ setTimeout(function() {
 }, 3000);
 //总结：关键词：大量相似对象  共享
 //-----------------------------------------------
+// 9,职责链模式：使多个对象都有机会处理，从而避免请求的发送者和接收者之间的耦合关系,
+// 这些对象连成一链，并沿着这条链传递该请求，直到有一个对象处理它为止。很像[击鼓传花]一样.
+//现实中常用于抢购的环节。下边就是一个例子：
+// 如某米手机的抢购。 付500定金的用户， 优先抢并返100优惠券， 付200定金的用户， 优先抢并返10优惠券。
+// 其他是普通用户， 库存有限的情况下可能抢不到。
+//示例代码
+var order500 = function(orderType, pay, stock) {
+    if (orderType === 1 && pay === true) {
+        console.log('500元定金预购，得到100元优惠券');
+    } else {
+        return 'nextSuccessor'; //向下传递
+    }
+};
+var order200 = function(orderType, pay, stock) {
+    if (orderType === 2 && pay === true) {
+        console.log('200元定金预购，得到10元优惠券');
+    } else {
+        return 'nextSuccessor'; //向下传递                      }
+    };
+}
+var orderNormal = function(orderType, pay, stock) {
+    if (stock > 0) {
+        console.log('普通购买，无优惠券');
+    } else {
+        console.log('手机库存不足');
+    }
+};
+Function.prototype.after = function(fn) {
+    var self = this;
+    return function() {
+
+        var ret = self.apply(this, arguments);
+        if (ret === 'nextSuccessor') {
+            return fn.apply(this, arguments);
+        }
+        return ret;
+    }
+};
+var order = order500yuan.after(order200yuan).after(orderNormal);
+
+order(1, true, 500); //500 付定金
+order(2, true, 500); //200付定金
+order(1, false, 500); //普通购买
+//应用场景2：兼容性处理：比如文件上传，ie，flash，h5的上传
+var getActiveUploadObj = function() {
+    try { // IE
+        return new ActiveXObject("TXFTNActiveX.FTNUpload");
+    } catch (e) {
+        return 'nextSuccessor';
+    }
+};
+var getFlashUploadObj = function() {
+    if (supportFlash()) {
+        var str = '<object type="application/x-shockwave-flash"></object>';
+        return $(str).appendTo($('body'));
+    }
+    return 'nextSuccessor';
+};
+var getFormUpladObj = function() {
+    return $('<form><input name="file" type="file"/></form>').appendTo($('body'));
+};
+var getUploadObj = getActiveUploadObj.after(getFlashUploadObj).after(getFormUpladObj);
+console.log(getUploadObj());
+//总结：优点：松耦合，顺序可调。缺点;链条太长很消耗性能，合理搭配优先级。
 //-----------------------------------------------
+
 //-----------------------------------------------
 //-----------------------------------------------
 //-----------------------------------------------
