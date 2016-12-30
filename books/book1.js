@@ -1111,7 +1111,6 @@ var orderNormal = function(orderType, pay, stock) {
 Function.prototype.after = function(fn) {
     var self = this;
     return function() {
-
         var ret = self.apply(this, arguments);
         if (ret === 'nextSuccessor') {
             return fn.apply(this, arguments);
@@ -1146,7 +1145,134 @@ var getUploadObj = getActiveUploadObj.after(getFlashUploadObj).after(getFormUpla
 console.log(getUploadObj());
 //总结：优点：松耦合，顺序可调。缺点;链条太长很消耗性能，合理搭配优先级。
 //-----------------------------------------------
+//10，中介者模式：
+//中介者模式的作用 是解除对象与对象之间的紧耦合关系。 如链家房产中介， 机场塔台， 博彩公司等。
+//泡泡堂游戏
+var playerDirector = (function() {
+    var players = {}, //保存所有玩家
+        operations = {}; //中介者可以执行的操作
+    /****************新增一个玩家 ***************************/
+    operations.addPlayer = function(player) {
+        var teamColor = player.teamColor; //玩家的队伍颜色
+        players[teamColor] = players[teamColor] || []; //组建队伍
+        players[teamColor].push(player); //添加玩家队伍
+    };
+    /****************移除一个玩家***************************/
+    operations.removePlayer = function(player) {
+        var teamColor = player.teamColor, //玩家队伍颜色
+            teamPlayers = players[teamColor] || []; //该队伍所有成员
+        for (var i = teamPlayers.length - 1; i >= 0; i--) { //遍历删除
+            if (teamPlayers[i] === player) {
+                teamPlayers.splice(i, 1);
+            }
+        }
+    };
+    /****************玩家换队***************************/
+    operations.changeTeam = function(player, newTeamColor) { //
+        operations.removePlayer(player); //  从原队伍中删除
+        player.teamColor = newTeamColor; //  改变队伍颜色
+        operations.addPlayer(player); //加入新队伍
 
+    };
+    operations.playerDead = function(player) { //玩家死亡
+        var teamColor = player.teamColor,
+            teamPlayers = players[teamColor];
+        var all_dead = true;
+
+        for (var i = 0, player; player = teamPlayers[i++];) {
+            if (player.state !== 'dead') {
+                all_dead = false;
+                break;
+            }
+        }
+        if (all_dead === true) { //全部阵亡
+            //
+            for (var i = 0, player; player = teamPlayers[i++];) {
+                player.lose(); //本队所有玩家lose
+            }
+            for (var color in players) {
+                if (color !== teamColor) {
+                    varteamPlayers = players[color]; //其他队伍玩家
+                    for (var i = 0, player; player = teamPlayers[i++];) {
+
+                        player.win(); //       其他队伍玩家 win
+                    }
+                }
+            }
+        }
+    };
+
+    var reciveMessage = function() {
+        varmessage = Array.prototype.shift.call(arguments); //arguments
+        operations[message].apply(this, arguments);
+    };
+    return {
+        reciveMessage: reciveMessage
+    }
+})();
+//
+var player1 = playerFactory('皮蛋', 'red'),
+    player2 = playerFactory('卡尔', 'red'),
+    player3 = playerFactory('丽塔', 'red'),
+    player4 = playerFactory('斯文', 'red');
+//
+var player5 = playerFactory('毒龙', 'blue'),
+    player6 = playerFactory('小黑', 'blue'),
+    player7 = playerFactory('风行', 'blue'),
+    player8 = playerFactory('白牛', 'blue');
+player1.die();
+player2.die();
+player3.die();
+player4.die();
+//假如1，2掉线：
+player1.remove();
+player2.remove();
+player3.die();
+player4.die();
+//加入player1换队：
+player1.changeTeam('blue');
+player2.die();
+player3.die();
+player4.die();
 //-----------------------------------------------
+//11，装饰者模式(decorator)：动态给对象添加职责的方式.如：游戏中的玩家随着等级变化，技能增加和升级。
+function Player(name) {
+    this.grade = 0;
+    this.name = name;
+}
+Player.prototype = {
+    Constructor: Player,
+    setGrade: function(grade) {
+        this.grade = grade;
+    },
+    getGrade: function() {
+        return this.grade;
+    },
+    fire: function() {
+        console.log(this.name + ',可以发射普通子弹');
+    },
+    missileDecorator: function() {
+        console.log(this.name + ',可以发射导弹');
+    },
+    getDecorator: function() {
+
+        this.fire();
+        if (this.grade > 5) {
+            this.missileDecorator();
+        }
+    }
+}
+var player1 = new Player('tom');
+var player2 = new Player('john');
+
+player1.setGrade(4);
+player2.setGrade(8);
+
+player1.getDecorator();
+player2.getDecorator();
+
+
+
+
 //-----------------------------------------------
 //-----------------------------------------------
