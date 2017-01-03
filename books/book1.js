@@ -1,4 +1,4 @@
-//javascript设计模式与开发实践  ---曾探
+//javascript设计模式与开发实践  ---曾探（2015年出版）
 //1，原型模式：模拟js对象new的过程
 var objectFactory = function() {
     var obj = new Object(); // 从 Object.prototype 上克隆一个空的对象
