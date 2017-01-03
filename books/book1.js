@@ -1270,9 +1270,222 @@ player2.setGrade(8);
 
 player1.getDecorator();
 player2.getDecorator();
+//上边这种方式扩展性不是很好。添加的技能很多的时候，ifelse会很多。如下：
+function Player(name) {
+    //this.grade = 0;
+    this.name = name;
+    this.list = [];
+}
+Player.prototype = {
+    Constructor: Player,
+    setDecorator: function() {
+        for (var i in arguments) {
+            var item = arguments[i];
+            //console.log("item=",item);
+            this.list.push(item);
+        }
+    },
+    getDecorator: function() {
+        //console.log(this.list);
+        for (var i in this.list) {
+            var itemfn = this.list[i];
+            //console.log("itemfn=",itemfn);
+            itemfn.apply(this);
+        }
+    }
+}
+var player1 = new Player('tom');
+var player2 = new Player('john');
+var fire = function(name) {
+    console.log(this.name + ',可以发射普通子弹');
+}
+var missileDecorator = function() {
+    console.log(this.name + ',可以发射导弹');
+}
+player1.setDecorator(fire);
+player2.setDecorator(fire, missileDecorator);
 
+player1.getDecorator();
+player2.getDecorator();
+//-----------------------------------------------
+//12,状态模式：最熟悉的ajax，promise，游戏角色等状态。合理的方式控制状态的转变，带来的行为的变化。
+//使用状态工厂
+window.external.upload = function(state) {
+    console.log(state); //     sign uploading done error
+};
+var plugin = (function() {
+    var plugin = document.createElement('embed');
+    plugin.style.display = 'none';
+    plugin.type = 'application/txftn-webkit';
+    plugin.sign = function() {
+        console.log('开始文件扫描');
+    }
+    plugin.pause = function() {
+        console.log('暂停文件上传');
+    };
+    7
+    plugin.uploading = function() {
+        console.log('开始文件上传');
+    };
+    plugin.del = function() {
+        console.log('删除文件上传');
+    }
 
+    plugin.done = function() {
+        console.log('文件上传完成');
+    }
+    document.body.appendChild(plugin);
+    return plugin;
+})();
+var Upload = function(fileName) {
+    this.plugin = plugin;
+    this.fileName = fileName;
+    this.button1 = null;
+    this.button2 = null;
+    this.signState = new SignState(this); // 设置初始状态waiting
+    this.uploadingState = new UploadingState(this);
 
+    this.pauseState = new PauseState(this);
+    this.doneState = new DoneState(this);
+    this.errorState = new ErrorState(this);
+    this.currState = this.signState; // 设置当前状态
+};
+Upload.prototype.init = function() {
+    var that = this;
+    this.dom = document.createElement('div');
+    this.dom.innerHTML =
+        '<span>    :' + this.fileName + '</span>\ <button data-action="button1">   </button>\ <button data-action="button2">  </button>';
+    document.body.appendChild(this.dom);
+    this.button1 = this.dom.querySelector('[data-action="button1"]');
+    this.button2 = this.dom.querySelector('[data-action="button2"]');
+    this.bindEvent();
+};
+Upload.prototype.bindEvent = function() {
+    var self = this;
+    this.button1.onclick = function() {
+        self.currState.clickHandler1();
+    }
+    this.button2.onclick = function() {
+        self.currState.clickHandler2();
+    }
+};
+var StateFactory = (function() {
+    var State = function() {};
+    State.prototype.clickHandler1 = function() {
+        throw new Error('子类需要重写clickHandler1');
+    }
+    State.prototype.clickHandler2 = function() {
+        throw new Error('子类需要重写clickHandler2');
+    }
+    return function(param) {
+        var F = function(uploadObj) {
+            this.uploadObj = uploadObj;
+        };
+        F.prototype = new State();
+        for (var i in param) {
+            F.prototype[i] = param[i];
+        }
+        return F;
+    }
+})();
+var SignState = StateFactory({
+    clickHandler1: function() {
+        console.log('扫描中，点击无效...');
+    },
+    clickHandler2: function() {
+        console.log('文件上传中，不能删除');
+    }
+});
+var UploadingState = StateFactory({
+    clickHandler1: function() {
+        this.uploadObj.pause();
+    },
+    clickHandler2: function() {
+        console.log('文件上传中，不能删除');
+    }
+});
+var PauseState = StateFactory({
+    clickHandler1: function() {
+        this.uploadObj.uploading();
+    },
+    clickHandler2: function() {
+        this.uploadObj.del();
+    }
+});
+var DoneState = StateFactory({
+    clickHandler1: function() {
+        console.log('文件已经上传完毕，点击无效');
+    },
+    clickHandler2: function() {
+        this.uploadObj.del();
+    }
+});
+var ErrorState = StateFactory({
+    clickHandler1: function() {
+        console.log(' 文件上传失败，点击无效');
+    },
+    clickHandler2: function() {
+        this.uploadObj.del();
+    }
+});
+//测试
+var uploadObj = new Upload('JavaScript设计模式与开发实践');
+uploadObj.init();
+window.external.upload = function(state) {
+    uploadObj[state]();
+};
+window.external.upload('sign');
+setTimeout(function() {
+    window.external.upload('uploading');
+}, 1000);
+setTimeout(function() {
+    window.external.upload('done');
+}, 5000);
 
+//-----------------------------------------------
+// 13，适配器模式：
+//    模式的作用是解决两个软件实体间的接口不兼容的问题。使用适配器模式之后,原本由于接口不兼容而不能工作的两个软件实体可以一起工作。
+//    如：跨公司，跨部门的合作等。
+var googleMap = {
+    show: function() {
+        console.log('渲染谷歌地图');
+    }
+};
+var baiduMap = {
+    display: function() {
+        console.log('渲染百度地图');
+    }
+};
+var baiduMapAdapter = {
+    show: function() {
+        return baiduMap.display();
+    }
+};
+renderMap(googleMap);//渲染谷歌地图
+renderMap(baiduMapAdapter);//渲染百度地图
+
+//-----------------------------------------------
+//设计原则和编程技巧
+//-----------------------------------------------
+单一职责原则（SRP）:一个对象（方法）只做一件事情。
+优点：有助于代码的复用，利于单元测试。缺点：增加代码复杂度，不利于对象之间联系
+-------------------------------
+最少知识原则（LKP）：也叫迪米特法则。是一个软件实体应当尽可能少地与其他实体发生相互作用。简言之：隐藏细节，
+缩短作用链。如自动洗衣机，自动测试等
+-------------------------------
+开放-封闭的原则（OCP）：软件实体（类，模块，函数）等应该是可以扩展的，但是不可修改的。
+--------------------------------
+里氏替换原则（LSP）:任何基类可以出现的地方，子类一定可以出现。 LSP是继承复用的基石，只有当衍生类可以替换掉基类，
+软件单位的功能不受到影响时，基类才能真正被复用，而衍生类也能够在基类的基础上增加新的行为。
+---------------------------------
+依赖倒置原则（DIP）:
+A.高层次的模块不应该依赖于低层次的模块，他们都应该依赖于抽象。
+B.抽象不应该依赖于具体实现，具体实现应该依赖于抽象。
+---------------------------------
+接口隔离原则（ISP）:客户端不应该依赖它不需要的接口；一个类对另一个类的依赖应该建立在最小的接口上
+
+//-----------------------------------------------
+总结：书里并不是完全正确的，但是有很多技巧和领悟。多读书总是有好处的，可以开拓视野，开发思维，得到大彻大悟的智慧！
+//-----------------------------------------------
 //-----------------------------------------------
 //-----------------------------------------------
