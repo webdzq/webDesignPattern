@@ -11,6 +11,8 @@
 3,books中是对一些书籍中的代码整理。供参考。
 4，设计模式主要是提供一些思路！有时候并不是你不会，而是你没有想到！要做到胸有成竹，必须胸中有万千策略！
 5，模式就是一种思想。切记生搬硬套。就如每一场战争，可能运用了36计中的很多计策组合。
+6，book1-javascript设计模式与开发实践  ---曾探（2015年出版），内容比较深。
+7，book2-javascript设计模式 张容铭著（2015.8出版）由浅入深，比较容易理解。对比着看，颇有收获
 参考文献：
-1，菜鸟教程（java实现）（http://www.runoob.com/design-pattern/design-pattern-tutorial.html）
+1，菜鸟教程（java实现设计模式）（http://www.runoob.com/design-pattern/design-pattern-tutorial.html）
 </pre>

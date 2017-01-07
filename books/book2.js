@@ -506,6 +506,689 @@ var test2 = deepCopy(test1);
 console.log(test2);
 test1.colors.push('green');
 console.log(test1.colors, test2.colors);
+-- -- -- -- -- -- -- -- -- --第三章-- -- -- -- -- -- -- -- -- -- -- -
+1， 简单工厂模式
+特点：（ 1）： 批量产生具有相同属性和方法的类;（
+2）： 每创建一次， 共同点都需要初始化一次。
+function factory(name, bref, type) {
+    var o = new Object(); //或者Object.create(null);
+    o.name = name;
+    o.bref = bref;
+    o.type = type;
+    o.getName = function() {
+        console.log(this.name);
+    }
+    o.show = function() {
+        console.log(this.bref);
+    }
+    return o;
+}
+//弹窗工厂
+var alert = factory('alertname', 'alert win', 'alert');
+var confirm = factory('confirmname', 'confirm win', 'confirm');
+var prompt = factory('promptname', 'prompt win', 'prompt');
+课后作业：
+1， 工厂模式和类（ 寄生式继承） 的异同：
+不同点： 前者返回的对象。 后者返回的是function。 通过new来创建的。
+相同点： 都是产生了一类具有属性和方法的对象。
+
+-- -- -- -- -- -- -- -- -- --第四章-- -- -- -- -- -- -- -- -- -- -- -
+1， 工厂方法模式:
+    特点：(1): 原型式类模式。 利用原型的实例共享特性， 无限扩展， 适应不断增长的需要;
+(2): 原型不断修改， 越来越大。
+
+var Factory = function(type, content) {
+    if (this instanceof Factory) {
+        var s = new this[type](content);
+        return s;
+    } else {
+        new Factory(type, content);
+    }
+}
+Factory.prototype = {
+    java: function(content) {
+        console.log('java...', content);
+    },
+    php: function(content) {
+        console.log('php...', content);
+    },
+    javascript: function(content) {
+        console.log('javascript...', content);
+    }
+}
+测试：
+var data = [{
+    type: 'java',
+    content: 'hello java'
+}, {
+    type: 'php',
+    content: 'hello php'
+}, {
+    type: 'javascript',
+    content: 'hello javascript'
+}];
+for (var i = 0; i < data.length; i++) {
+    var item = data[i];
+    Factory(item.type, item.content);
+}
+-- -- -- -- -- -- -- -- --第五章-- -- -- -- -- -- -- -- -- -- -- -- -
+1， 抽象工厂模式
+特点: (1) 父类定义特性， 子类继承并实现， 扩展性强, 更规模化;
+(2) 原理类似[寄生组合式继承], 这种方式类似于java的抽象类实现。
+var VehicleFactory = function(subType, superType) {
+    if (typeof VehicleFactory[superType] === 'function') {
+        function F() {};
+        F.prototype = new VehicleFactory[superType](); //继承了父类的构造函数和原型
+        //console.log(new F());
+        subType.constructor = subType;
+        subType.prototype = new F(); //这样做好吗?加长了原型链
+        //console.log(new subType());
+    } else {
+        throw new Error('为创建该抽象类');
+    }
+}
+VehicleFactory.Car = function() {
+    this.type = 'car';
+};
+//小轿车抽象类
+VehicleFactory.Car.prototype = {
+        getPrice: function() {
+            return new Error('抽象方法不能调用');
+        },
+        getSpeed: function() {
+            return new Error('抽象方法不能调用');
+        }
+    }
+    //公交车抽象类
+VehicleFactory.Bus = function() {
+    this.type = 'bus';
+};
+//公交车抽象类
+VehicleFactory.Bus.prototype = {
+        getPrice: function() {
+            return new Error('抽象方法不能调用');
+        },
+        getPassengerNum: function() {
+            return new Error('抽象方法不能调用');
+        }
+    }
+    //小轿车子类
+var BMW = function(price, speed) {
+    this.price = price;
+    this.speed = speed;
+}
+VehicleFactory(BMW, 'Car');
+BMW.prototype.getPrice = function() {
+    return this.price;
+}
+BMW.prototype.speed = function() {
+    return this.speed;
+}
+var bmw = new BMW(100, 200);
+console.log(bmw.getPrice());
+console.log(bmw.type);
+-- -- -- -- -- -- -- -- -- --第六章-- -- -- -- -- -- -- -- -- -- -- -
+1， 建造者模式
+特点: (1) 多个对象组合或组装为一个完整的实体。
+var Human = function(param) {
+    this.skill = param && param.skill || '保密'; //技能
+    this.hobby = param && param.hobby || '保密'; //兴趣爱好
+}
+Human.prototype = {
+    getSkill: function() {
+        return this.skill;
+    },
+    getHobby: function() {
+        return this.hobby;
+    }
+}
+var Named = function(name) {
+    var that = this;
+    //计算的属性用函数初始化
+    (function(name, that) {
+        that.wholeName = name;
+        if (name.indexOf(' ') > -1) {
+            that.firstName = name.slice(0, name.indexOf(' '));
+            that.secondName = name.slice(name.indexOf(' '));
+
+        }
+    })(name, that);
+}
+var Work = function(work) {
+    var that = this;
+    (function(work, that) {
+        switch (work) {
+            case 'code':
+                that.work = '工程师';
+                that.workDesc = 'everyday codeing';
+                break;
+            case 'ui':
+            case 'ue':
+                that.work = '设计师';
+                that.workDesc = 'everyday copying';
+                break;
+            default:
+                that.work = work;
+                that.workDesc = 'everyday studying';
+                break;
+        };
+    })(work, that);
+
+};
+Work.prototype.chageWork = function(work) {
+    this.work;
+}
+Work.prototype.chageDesc = function(setence) {
+        this.workDesc = setence;
+    }
+    //创建应聘者
+var Person = function(name, work) {
+    var _person = new Human();
+    _person.name = new Named(name);
+    _person.work = new Work(work);
+    return _person;
+}
+var person = new Person('doing', 'code');
+console.log(person.skill);
+console.log(person.name);
+console.log(person.work.work);
+console.log(person.work.workDesc);
+Person.work.chageDesc('coding day in day ');
+console.log(person.work.workDesc);
+
+-- -- -- -- -- -- -- -- -- --第七章-- -- -- -- -- -- -- -- -- -- -- -
+1， 原型模式
+特点：
+//图片轮播类
+var LoopImages = function(imgArr, cotainer) {
+    this.imageArray = imgArr;
+    this.cotainer = cotainer;
+}
+LoopImages.prototype = {
+    createImage: function() {
+        console.log('LoopImages createImage...');
+    },
+    changeImage: function() {
+        console.log('LoopImages changeImage...');
+    }
+}
+
+//上下滑动类
+var SlideLoopImg = function(imgArr, cotainer) {
+    LoopImages.call(this, imgArr, cotainer); //构造函数继承
+}
+SlideLoopImg.prototype = new LoopImages(); //类式继承
+SlideLoopImg.prototype.changeImage = function() {
+    console.log('slideLoopImg changeImage...');
+}
+
+//渐隐切换类
+var FadeLoopImg = function(imgArr, cotainer, arrow) {
+    LoopImages.call(this, imgArr, cotainer); //构造函数继承
+    this.arrow = arrow;
+}
+FadeLoopImg.prototype = new LoopImages(); //类式继承
+FadeLoopImg.prototype.changeImage = function() {
+    console.log('FadeLoopImg changeImage...');
+}
+
+//测试用例：
+var fadeimg = new FadeLoopImg([], 'fade', 'left');
+console.log(fadeimg.cotainer);
+console.log(fadeimg.changeImage());
+
+LoopImages.prototype.getImgLength = function() {
+    return this.imageArray.length;
+}
+FadeLoopImg.prototype.getContainer = function() {
+    return this.container;
+}
+
+console.log(fadeimg.getImgLength());
+console.log(fadeimg.getContainer());
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+2， 原型继承
+
+function prototypeExtend() {
+    var F = function() {},
+        args = arugemnts,
+        i = 0,
+        len = args.length;
+    for (; i < len; i++) {
+        for (var j in args[i]) {
+            F.prototype[j] = args[i][j];
+
+        }
+    }
+    return new F();
+}
+//示例
+var penguin = prototypeExtend({
+    speed: 20,
+    swim: function() {
+        consloe.log("游泳速度=", this.speed);
+    }
+}, {
+    run: function(speed) {
+        consloe.log("奔跑速度=", this.speed);
+    }
+}, {
+    jump: function() {
+        consloe.log("跳跃动作");
+    }
+});
+penguin.swim();
+penguin.run(10);
+penguin.jump();
+
+-- -- -- -- -- -- -- -- -- -- --第八章: 单例模式-- -- -- -- -- -- -- -- -- -- -
+    1， 对象单例模式：
+特点：(1) 一个对象或一个命名空间作为一个小模块, 如jquery的$等;
+(2) 容易被覆盖和修改。
+//一小段代码库
+var Conf = {
+    var conf = {
+        COUNT: 100,
+        MAX_NUM: 1000,
+        MIN_NUM: 10
+    }
+    return {
+        get: functon(name) {
+            return conf[name] ? conf[name] : null;
+        }
+    }
+};
+//测试
+var count = Conf.get('COUNT');
+consloe.log(count);
+2， 构造函数单例模式(惰性单例)
+var LazySingle = (function() {
+    var _instance = null;
+
+    function Single() {
+        var name = 'lazy';
+        return {
+            publicMehd: function() {
+                console.log(name);
+            },
+            publicProy: '1.0'
+        }
+    }
+    return function() {
+        if (!_instance) {
+            _instance = Single();
+        }
+        return _instance;
+    }
+})();
+consloe.log(LazySingle().publicProy);
+-- -- -- -- -- -- -- -- --第九章： 外观模式-- -- -- -- -- -- -- -- -- -- -- -- -
+外观模式： 接口的外层包装， 为一组复杂的子系统提供一个更高级的统一接口， 用于对底层结构封装来简化用户使用。
+1， 浏览器事件兼容方式
+1.1 绑定事件兼容
+
+function on(dom, type, callback) {
+    if (dom.addEventListener) { //w3c浏览器
+        dom.addEventListener(type, callback, false);
+    } else if (dom.attachEvent) { //ie浏览器
+        dom.attachEvent('on' + type, callback);
+    } else {
+        dom['on' + type] = callback;
+    }
+}
+
+//测试
+var myinput = doucument.getElementById('myinput');
+on(myinput, 'click', function() {
+    console.log(bind one event);
+});
+on(myinput, 'click', function() {
+    console.log(bind two event);
+});
+1.2 其他
+//获取对象兼容
+var getEvent = function(event) {
+    return event || window.event; //ie下是window.event;
+
+};
+//获取元素
+var getTarget = function(event) {
+    var event = getEvent(event);
+    return event.target || event.srcElement;
+};
+//阻止默认行为
+var preventDef = function(event) {
+    var event = getEvent(event);
+    if (event.preventDefault) {
+        event.preventDefault();
+    } else {
+        //ie浏览器
+        event.returnValue = false;
+    }
+};
+2， 一个小型的代码库
+var A = {
+    g: function(id) {
+        return doucument.getElementById(id);
+    },
+    css: funciton(id, key, val) {
+        doucument.getElementById(id).style[key] = val;
+    },
+    attr: function(id, key, val) {
+        doucument.getElementById(id)[key] = val;
+    },
+    html: function(id, html) {
+        doucument.getElementById(id).innerHTML = html;
+    },
+    on: function(id, type, fn) {
+        doucument.getElementById(id)['on' + type] = fn;
+    }
+};
+//测试
+A.css('box', 'backgroud', 'red');
+A.attr('box', 'className', 'box');
+A.html('box', 'add new content');
+A.on('box', 'click', function() {
+    A.css('box', 'width', '500px');
+});
+
+
+-- -- -- -- -- -- -- --第十章： 适配器模式-- -- -- -- -- -- -- -- -- -- -- -- -- -
+适配器模式： 将一个类（ 对象） 的接口（ 属性和方法） 转换为另一个接口， 以方便用户使用。
+1， 后端数据适配
+
+function ajaxAdapter(data) {
+    return [data['key1'], data['key2']];
+}
+$.ajax({
+    url: 'srt.php',
+    success: function(data) {
+        if (data) {
+            dosamething(ajaxAdapter(data));
+        }
+    }
+});
+-- -- -- -- -- -- -- -- --第11章： 代理模式-- -- -- -- -- -- -- -- -- -- -- -- -
+代理模式： 一个对象不能访问另一个对象。 通过代理对象起中介作用获得联系。 如翻墙， 跨域等
+1， 站长统计
+var Count = (function() {
+    var img = new Image();
+    return function(param) {
+        var str = 'http://www.count.com/a.gif?';
+        for (var i in param) {
+            str += i + '=' + param[i];
+        }
+        img.src = str;
+    }
+})();
+//测试,统计num
+Count({
+    num: 10
+});
+2， 跨域问题(jsonp)
+    /**
+    <script type = "text/javascript" >
+        function jsopCallback(data) {
+            console.log(data);
+        } </script>
+        <script type = "text/javascript"
+    src = "http://localhost/jsonp.php?callback=jsopCallback&data=getJsopData">
+
+        </script>
+        //服务端代码
+    <?php
+    $data=$_GET["data"];
+    $callback=$_GET["callback"];
+    echo $callback."('success','".$data."')";
+    ?>
+    **/
+
+-- -- -- -- -- -- -- -- --第12章： 装饰者模式-- -- -- -- -- -- -- -- -- -- -- -
+装饰者模式： 在不改变原对象的基础上， 通过对其进行包装（ 添加属性和方法） 使原有对象可以满足用户更复杂的需求。
+
+1， 装饰已有的功能：
+var decorator = function(input, fn) {
+    var input = doucument.getElementById(input);
+    if (typeof input.onclick === 'function') {
+        var oldclickFn = input.onclick;
+        input.onclick = function() {
+            oldclickFn();
+            fn();
+        }
+    } else {
+        input.onclick = fn;
+    }
+};
+-- -- -- -- -- -- -- -- -- --第13章： 桥接模式-- -- -- -- -- -- -- -- -- -- -- -
+桥接模式： 将业务和抽象逻辑解耦.
+1， 类似代码的提取
+var span = $('span');
+span[0].mouseover = function() {
+    this.style.color = 'red';
+    this.style.backgroud = 'green';
+
+}
+span[1].mouseover = function() {
+    this.style.color = 'blue';
+    this.style.backgroud = 'green';
+
+};
+//优化后
+function chageColor(dom, color, bg) { //提取
+    dom.style.color = color;
+    dom.style.backgroud = bg;
+}
+var span = $('span');
+span[0].mouseover = function() {
+    chageColor(this, 'red', '#ddd');
+
+}
+span[1].mouseover = function() {
+    tchageColor(this, 'blue', '#ccc');
+
+};
+//课后练习：创建一个对象桥接method。实现为对象拓展方法的功能
+Object.prototype.method = function(name, fn) {
+    if (!this[name]) {
+        this[name] = fn;
+    }
+};
+
+-- -- -- -- -- -- -- -- --第13章： 组合模式-- -- -- -- -- -- -- -- -- -- -- -- -
+组合模式： 由部分到整体的方式， 由一个人到一群人的方式。 如套餐， 团队等
+1， 新闻模块组合
+//虚拟类
+var News = function() {
+    this.children = []; //子组件容器
+    this.elem = null;
+    当前组件元素
+}
+News.prototype = {
+    init: function() {
+        throw new Error('请重写这个方法');
+    },
+    add: function() {
+        throw new Error('请重写这个方法');
+    },
+    getElemt: function() {
+        throw new Error('请重写这个方法');
+    }
+};
+//容器类构造函数
+var Container = function(id, parent) {
+    News.call(this);
+    this.id = id;
+    this.parent = parent;
+    this.init();
+};
+inheritPrototype(container, News); //寄生式继承父类原型方法
+Container.prototype.init = function() {
+    this.elem = document.createElement('ul');
+    this.elem.id = this.id;
+    this.elem.className = 'new-container';
+}
+Container.prototype.add = function(child) {
+    this.children.push(child);
+    this.elem.appendChild(child.getElement());
+    return this;
+}
+Container.prototype.getElement = function() {
+    return this.elem;
+}
+
+Container.prototype.show = function() {
+    this.parent.appendChild(this.elem);
+};
+//下一行的成员集合类
+var Item = function(classname) {
+    News.call(this);
+    this.className = className || '';
+    this.init();
+};
+inheritPrototype(Item, News); //寄生式继承父类原型方法
+Item.prototype.init = function() {
+    this.elem = document.createElement('li');
+    this.elem.className = this.className;
+
+}
+Item.prototype.add = function(child) {
+    this.children.push(child);
+    this.elem.appendChild(child.getElement());
+    return this;
+}
+Item.prototype.getElement = function() {
+        return this.elem;
+    }
+    //新闻体合体类
+var newsGroup = function(classname) {
+    News.call(this);
+    this.className = className || '';
+    this.init();
+};
+inheritPrototype(newsGroup, News); //寄生式继承父类原型方法
+newsGroup.prototype.init = function() {
+    this.elem = document.createElement('div');
+    this.elem.className = this.className;
+
+}
+newsGroup.prototype.add = function(child) {
+    this.children.push(child);
+    this.elem.appendChild(child.getElement());
+    return this;
+}
+newsGroup.prototype.getElement = function() {
+    return this.elem;
+}
+
+//图片新闻类
+var ImageNews = function(url, herf, className) {
+    News.call(this);
+    this.url = url;
+    this.herf = herf || '#';
+    this.className = className || 'normal';
+    this.init();
+};
+inheritPrototype(ImageNews, News); //寄生式继承父类原型方法
+ImageNews.prototype.init = function() {
+    this.elem = document.createElement('a');
+    var img = new Image();
+    img.src = this.url;
+    this.elem.appendChild(img);
+    this.elem.className = 'img-new' + this.className;
+    this.elem.href = this.href;
+}
+ImageNews.prototype.add = function(child) {
+    this.children.push(child);
+    this.elem.appendChild(child.getElement());
+    return this;
+}
+ImageNews.prototype.getElement = function() {
+        return this.elem;
+    }
+    //图片新闻类
+var IconNews = function(text, herf, type) {
+    News.call(this);
+    this.text = text || '';
+    this.herf = herf || '#';
+    this.type = type || 'video';
+    this.init();
+};
+inheritPrototype(IconNews, News); //寄生式继承父类原型方法
+IconNews.prototype.init = function() {
+    this.elem = document.createElement('a');
+    this.elem.innerHTML = this.text;
+    this.elem.className = 'icon' + this.type;
+    this.elem.href = this.href;
+}
+IconNews.prototype.add = function(child) {
+
+}
+IconNews.prototype.getElement = function() {
+        return this.elem;
+    }
+    //图片新闻类
+var EasyNews = function(text, herf) {
+    News.call(this);
+    this.text = text || '';
+    this.herf = herf || '#';
+
+    this.init();
+};
+inheritPrototype(EasyNews, News); //寄生式继承父类原型方法
+EasyNews.prototype.init = function() {
+    this.elem = document.createElement('a');
+    this.elem.innerHTML = this.text;
+    this.elem.className = 'text';
+    this.elem.href = this.href;
+}
+EasyNews.prototype.add = function(child) {
+
+}
+EasyNews.prototype.getElement = function() {
+        return this.elem;
+    }
+    //图片新闻类
+var TypeNews = function(text, herf, type, pos) {
+    News.call(this);
+    this.text = text || '';
+    this.herf = herf || '#';
+    this.type = type || '';
+    this.pos = pos || 'left';
+
+    this.init();
+};
+inheritPrototype(TypeNews, News); //寄生式继承父类原型方法
+TypeNews.prototype.init = function() {
+    this.elem = document.createElement('a');
+    if (this.pos === 'left') {
+        this.elem.innerHTML = '[' + this.type + ']' + this.text;
+    } else {
+        this.elem.innerHTML = this.text + '[' + this.type + ']';
+    }
+
+    this.elem.className = 'text';
+    this.elem.href = this.href;
+}
+TypeNews.prototype.add = function(child) {
+
+}
+TypeNews.prototype.getElement = function() {
+        return this.elem;
+    }
+    //测试
+var new1 = new Container('news', doucument.body);
+new1.add(
+    new Item('normal').add(
+        new ImageNews('http://123.com', '#', 'imagecss')
+    ).add(
+        new TypeNews('ak47', '#', 'nba', 'left')
+    ).add(
+        new EasyNews('240斤', '#')
+    )
+);
+
+-- -- -- -- -- -- -- --第15章： 享元模式-- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
