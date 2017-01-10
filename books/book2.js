@@ -1189,6 +1189,296 @@ new1.add(
 );
 
 -- -- -- -- -- -- -- --第15章： 享元模式-- -- -- -- -- -- -- -- -- -- -- -- -- -
+享元模式： 模块化， 相同内容提取封装。 避免对象间有相同内容造成多余开销且难维护。
+1， 游戏中的人物， 精灵等角色， 创建一个统一享元类， 实现横向和纵向移动。
+var FlyWeight = {
+    moveX: function(x) {
+        this.x = x;
+    },
+    moveY: function(y) {
+        this.y = y;
+    }
+};
+var Player = function(x, y, c) {
+    this.x = x;
+    this.y = y;
+    this.color = c;
+
+};
+Player.prototype = FlyWeight;
+Player.prototype.changeR = function(r) {
+    this.r = r;
+};
+
+//精灵
+var Spirit = function(x, y, r) {
+    this.x = x;
+    this.y = y;
+    this.r = r;
+}
+Spirit.prototype = FlyWeight;
+Spirit.prototype.changeR = function(r) {
+    this.r = r;
+};
+//测试
+var player1 = new Player(5, 6, 'red');
+console.log("player...=", player1);
+
+var spirit1 = new Spirit(2, 3, 4);
+console.log("spirit1...=", spirit1);
+
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- --行为型设计模式-- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
+-- -- -- -- -- -- --第16章： 模板方法模式-- -- -- -- -- -- -- -- --
+模板方法模式： 父类定义一组算法骨架， 而子类在不改变骨架的基础上做一些拓展。
+1， 提示框归一化
+var Alert = function(data) {
+    if (!data) {
+        return;
+    }
+    this.content = data.content; //设置内容
+    this.panel = document.createElement('div'); //创建提示框面板
+    this.contentNode = document.createElement('p'); //创建提示内容组件
+    this.confirmBtn = document.createElement('span'); //创建确定按钮组件
+    this.closeBtn = document.createElement('b'); //创建关闭按钮组件
+    this.panel.className = "alert"; //为提示面板添加类
+    this.closeBtn.className = "a-close"; //为关闭按钮添加类
+    this.confirmBtn.className = "a-confirm"; //为确定按钮添加类
+    this.confirmBtn.innerHTML = data.confirm || '确认';
+    this.contentNode.innerHTML = this.content; //为提示内容添加文本
+    this.success = data.success || function() {};
+    this.fail = data.fail || function() {};
+
+};
+Alert.prototype = {
+    init: function() {
+        this.panel.appendChild(this.closeBtn);
+        this.panel.appendChild(this.contentNode);
+        this.panel.appendChild(this.confirmBtn);
+        document.body.appendChild(this.panel); //插入页面中
+        this.bindEvent();
+        this.show();
+    },
+    bindEvent: function() {
+        var me = this;
+        this.closeBtn.onclick = function() {
+            me.fail();
+            me.hide();
+        }
+        this.confirm.onclick = function() {
+            me.success();
+            me.hide();
+        }
+    },
+    hide: function() {
+        this.panel.style.display = 'none';
+
+    },
+    show: function() {
+        this.panel.style.display = 'show';
+    }
+};
+
+
+
+//右侧按钮提示框
+var RightAlert = function(data) {
+    Alert.call(this, data);
+    this.confirmBtn.className = this.confirmBtn.className + 'right';
+}
+RightAlert.prototype = new Alert();
+//标题提示框
+var TitleAlert = function(data) {
+    Alert.call(this, data);
+    this.title = data.title;
+    this.titleNode = document.createElement('h3');
+    this.titleNode.innerHTML = this.title;
+}
+TitleAlert.prototype = new Alert();
+TitleAlert.prototype.init = function() {
+        this.panel.insertBefore(this.titleNode, this.panel.firstChild);
+        Alert.prototype.init.call(this);
+    }
+    //带有取消按钮的弹出框
+var CanelAlert = function(data) {
+    TitleAlert.call(this, data);
+    this.cancel = data.cancel;
+    this.cancelBtn = doucument.body.appendChild('span');
+    this.cancel.className = 'cancel';
+    this.cancelBtn.innerHTML = this.cancel || '取消';
+
+}
+CanelAlert.prototype = new Alert();
+CanelAlert.prototype.init = function() {
+    TitleAlert.prototype.init.call(this);
+    this.panel.appendChild(this.cancelBtn);
+
+}
+CanelAlert.prototype.bindEvent = function() {
+    var me = this;
+    TitleAlert.prototype.bindEvent.call(this);
+    this.cancelBtn.onclick = function() {
+        me.fail();
+        me.hide();
+    }
+};
+//测试：
+new CanelAlert({
+    title: '提示标题',
+    content: '',
+    success: function() {
+        console.log('ok');
+    },
+    fail: function() {
+        console.log('fail');
+    }
+}).init();
+
+2， 创建多类导航
+
+function formateString(str, data) {
+    //格式化字符串
+    return str.replace(/\{#(\w+)#\}/g, function(match, key) {
+        return typeof data[key] === undefined ? '' : data[key];
+    });
+}
+//基础导航
+var Nav = function(data) {
+    this.item = '<a href="{#href#}" title="{#title#}">{#name#}</a>';
+    this.html = '';
+    for (var i = 0, len = data.length; i < len; i++) {
+        this.html += formateString(this.item, data);
+    }
+    return this.html;
+};
+//带有消息提醒导航
+var NumNav = function(data) {
+    var tpl = '<b>{#num#}</b>';
+    for (var i = data.length - 1; i >= 0; i--) {
+        data[i].name += data[i].name + formateString(tpl, data[i]);
+    }
+    return Nav.call(this, data);
+};
+//带有链接地址的导航
+var LinkNav = function(data) {
+    var tpl = '<span>{#link#}</span>';
+    for (var i = data.length - 1; i >= 0; i--) {
+        data[i].name += data[i].name + formateString(tpl, data[i]);
+    }
+    return Nav.call(this, data);
+};
+//测试
+var nav = document.getElementById('content');
+nav.innerHTML = NumNav([{
+    href: 'http://www.baidu.com',
+    title: '百度一下，你就知道',
+    name: '百度',
+    num: '10'
+}, {
+    href: 'http://www.taobao.com',
+    title: '淘宝商城',
+    name: '淘宝',
+    num: '2'
+}]);
+
+-- -- -- -- -- -- -- -- --第17章： 观察者模式-- -- -- -- -- -- -- -
+观察者模式：（ 也叫发布 - 订阅者模式） 定义一种依赖关系， 解决主体对象与观察者之间的耦合。 如机场塔楼.
+主要应用与模块间的通讯。
+var Observer = (function() {
+    var _messages = {};
+    return {
+        regist: function(type, fn) { //注册
+            if (typeof _messages[type] === 'undefined') {
+                _messages[type] = [fn];
+            } else {
+                _messages[type].push(fn);
+            }
+
+        },
+        fire: function(type, args) { //发布
+            if (!_messages[type]) {
+                return;
+            }
+            var events = {
+                    type: type,
+                    args: args || {}
+                },
+                i = 0,
+                len = _messages[type].length;
+            for (; i < len; i++) {
+                _messages[type][i].call(this, events);
+            }
+
+        },
+        remove: function(type, fn) { //移除
+            if (_messages[type] instanceof Array) {
+                var i = _messages[type].length - 1;
+                for (; i >= 0; i--) {
+                    console.log(_messages[type][i] === fn);
+                    _messages[type][i] === fn && _messages[type].splice(i, 1);
+                }
+
+            }
+        }
+    }
+})();
+//测试
+var test = function(e) {
+    console.log(e.type, e.args.msg);
+}
+Observer.regist('test', test);
+
+Observer.fire('test', {
+    msg: '传递参数'
+});
+Observer.remove('test', test); //使用匿名函数的话，无法remove。_messages[type][i] === fn永远是false
+Observer.fire('test', {
+    msg: '传递参数111'
+});
+
+//对象解耦
+var Student = function(result) {
+    var that = this;
+    this.result = result;
+    this.say = function() {
+        console.log(this.result);
+    }
+};
+Student.prototype.answer = function(question) {
+    Observer.regist(qustion, this.say);
+};
+Student.prototype.sleep = function(question) { //学生呼呼
+    console.log(this.result + ' ' + question + '被注销');
+    Observer.remove(qustion, this.say);
+};
+//教师类
+var Teacher = function() {};
+Teacher.prototype.ask = function(question) {
+    console.log('问题是： ' + question);
+    Observer.fire(qustion);
+};
+//测试
+var student1 = new Student('学生1回答问题'),
+    student2 = new Student('学生2回答问题'),
+    student3 = new Student('学生3回答问题');
+student1.answer('什么是苹果');
+student1.answer('什么是橘子');
+student2.answer('什么是黄元帅');
+student3.answer('什么是西瓜');
+student3.answer('什么是猕猴桃');
+student3.sleep('什么是猕猴桃');
+
+var teacher = new Teacher();
+teacher.ask('什么是苹果');
+teacher.ask('什么是猕猴桃');
+
+-- -- -- -- -- -- -- -- --第18章：状态模式 -- -- -- -- -- -- -- -- 
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
