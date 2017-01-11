@@ -1474,11 +1474,726 @@ var teacher = new Teacher();
 teacher.ask('什么是苹果');
 teacher.ask('什么是猕猴桃');
 
--- -- -- -- -- -- -- -- --第18章：状态模式 -- -- -- -- -- -- -- -- 
+-- -- -- -- -- -- -- -- --第18章： 状态模式-- -- -- -- -- -- -- --
+状态模式： 状态的改变, 引起行为的变化。 主要用来处理臃肿的分支语句。 如： http的状态码等
+1， 状态对象的实现
+var ResultState = function() {
+    var States = {
+        state0: function() {
+            //处理结果0
+            console.log('这是第一种情况');
+        },
+        state1: function() {
+            //处理结果0
+            console.log('这是第2种情况');
+        },
+        state2: function() {
+            //处理结果0
+            console.log('这是第3种情况');
+        },
+        state3: function() {
+            //处理结果0
+            console.log('这是第4种情况');
+        }
+    };
+
+    function show(result) {
+        States['state' + result] && States['state' + result]();
+    }
+    return {
+        show: show
+    }
+}();
+//测试
+console.log(ResultState.show(0));
+2， 超级玛丽
+var MarryState = function() {
+    var _currentState = {},
+        states = {
+            jump: function() {
+                console.log('jump...');
+            },
+            move: function() {
+                console.log('move...');
+            },
+            shoot: function() {
+                console.log('shoot...');
+            },
+            squat: function() {
+                //蹲下
+                console.log('squat...');
+            },
+        };
+    var Action = {
+        chageState: function() {
+            var args = arguments,
+                _chageState = {};
+            重置内部状态
+            if (args.length) {
+                for (var i = 0, len = args.length; i < len; i++) {
+                    _chageState[args[i]] = true;
+                }
+            };
+            return this;
+        },
+        goes: function() {
+            console.log('触发一次动作');
+            for (var i in _chageState) {
+                states[i] && states[i]();
+            }
+        }
+    }
+    return {
+        change: Action.chageState,
+        goes: Action.goes
+    }
+};
+//测试
+var marry = new MarryState();
+marry.change('jump', 'shoot').goes().goes().change('shoot').goes();
+
+-- -- -- -- -- -- -- -- -- --第19章： 策略模式-- -- -- -- -- -- --
+策略模式： 算法不同， 业务相同。 封装的算法具有独立性。 多用于促成活动类似的场景。
+1， 商品促销
+var PriceStrategy = function() {
+    var strategy = {
+        return30: function(price) {
+            //100返30
+            return Number(price) + parseInt(price / 100) * 30;
+        },
+        return50: function(price) {
+            //100返30
+            return Number(price) + parseInt(price / 100) * 50;
+        },
+        percent90: function(price) {
+            //9折
+            return parseInt(price) * 100 * 90 / 10000;
+        }
+    };
+    return function(alg, price) {
+        return strategy[alg] && strategy[alg](price);
+    };
+};
+//测试
+var price = PriceStrategy('return50', '314.26');
+console.log("price..=", price);
+-- -- -- -- -- -- -- -- --第20章: 职责链模式-- -- -- -- -- -- -- -
+    职责链模式： 一件多职责的事情。 需要各个角色做到单一职责。 然后把流程执行完成。 如ajax请求数据，
+jquey处理交互。 dom渲染到页面。
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- -- -- --第21章: 命令模式-- -- -- -- -- -- -- -- -
+    命令模式： 对一系列命令封装， 简化操作。 可以批量执行命令。
+    //用canvas绘制对象
+var CanvasCmd = (function() {
+    var canvas = document.getElementById('canvas'),
+        ctx = canvas.getContext('2d');
+    var Action = {
+        fillStyle: function(c) {
+            ctx.fillStyle = c;
+        },
+        fillRect: function(x, y, width, height) {
+            ctx.fillRect(x, y, width, height);
+        },
+        fill: function() {
+            ctx.fill();
+        }
+    };
+    return {
+        excute: function(msg) {
+            if (!msg) {
+                return;
+            }
+            if (msg.length) { //msg为数组
+                for (var i = 0, len = msg.length; i < len; i++) {
+                    arugemnts.callee(msg[i]);
+                }
+            } else {
+
+                msg.param = Object.prototype.toString.call(msg.param) === "[object Array]" ? msg.param : [msg.param];
+                Action[msg.command].apply(Action, msg.param);
+            }
+        }
+    };
+})();
+//测试
+填充为红色， 并绘制矩形
+CanvasCmd.excute([{
+    command: 'fillStyle',
+    param: 'red'
+}, {
+    command: 'fillRect',
+    param: [20, 20, 100, 100]
+}]);
+-- -- -- -- -- -- -- -- --第22章: 访问者模式-- -- -- -- -- -- -- -
+    1， 对象访问器
+var Visitor = (function() {
+    return {
+        splice: function() {
+            var args = Array.prototype.splice.call(arguments, 1);
+            return Array.prototype.splice.apply(arguments[0], args);
+        },
+        push: function() {
+            var len = arguments[0].length || 0;
+            var args = this.splice(arguments, 1);
+            arguments[0].length = len + arguments.length - 1;
+            return Array.prototype.push.apply(arguments[0], args);
+        },
+        pop: function() {
+            return Array.prototype.pop.apply(arguments[0]);
+        }
+    }
+})();
+//测试
+var a = new Object();
+console.log(a.length);
+Visitor.push(a, 1, 2, 3, 4);
+console.log(a.length);
+Visitor.push(a, 4, 5, 6);
+console.log(a);
+Visitor.pop(a);
+console.log(a);
+Visitor.splice(a, 2);
+console.log(a);
+-- -- -- -- -- -- -- -- --第23章: 中介者模式-- -- -- -- -- -- -- -
+    中介者模式： 对象间解耦。 起到承上启下和桥梁的作用。 类似发布 - 订阅模式.如翻墙软件， 代理工具
+
+-- -- -- -- -- -- -- -- -- --第24章: 备忘录模式-- -- -- -- -- -- -
+    //缓存已请求的翻页数据
+    var Page = function() {
+        var cache = {};
+        return function(page, fn) {
+            if (cache[page]) {
+                showPage(page, cache[page]);
+                fn && fn();
+            } else {
+                $.post('http://demo.php', {
+                    page: page
+                }, function(res) {
+                    if (res.errNo = 0) {
+                        showPage(page, cache[page]);
+                        cache[page] = res.data;
+                        fn && fn();
+                    }
+                });
+            }
+        };
+    };
+-- -- -- -- -- -- -- -- -- -- --第25章: 迭代器模式-- -- -- -- -- -- -- -- -- -- -
+    迭代器模式： 在不暴露对象内部结构的同时， 可以顺序地访问聚合对象内部的元素。
+1, 迭代器
+var Iterator = function(items, container) {
+    var container = container && document.getElementById(container) || document,
+        items = container.getElementByTagName(items),
+        length = items.length,
+        index = 0;
+    var splice = [].splice;
+    return {
+        first: function() {
+            index = 0;
+            return items[index];
+        },
+        last: function() {
+            index = length - 1;
+            return items[index];
+        },
+        pre: function() {
+            if (--index > 0) {
+                return items[index];
+            } else {
+                index = 0;
+                return null;
+            }
+        },
+        next: function() {
+            if (++index < length) {
+                return items[index];
+            } else {
+                index = length - 1;
+                return null;
+            }
+        },
+        get: function(num) {
+            index = num >= 0 ? num % length : num % length + length;
+            return items[index];
+        },
+        dealEach: function(fn) {
+            //对每一个元素执行某操作
+            var args = Array.prototype.splice.call(arguments, 1);
+            for (var i = 0; i < length; i++) {
+                fn.apply(items[i], args);
+            }
+        },
+        dealItem: function(num, fn) {
+            //对某一个元素执行某操作
+            fn.apply(this.get(num), Array.prototype.splice.call(arguments, 2));
+        },
+        exclusive: function(num, allFn, numFn) {
+            //排他方式处理某一元素
+            this.dealEach(allFn);
+            if (Object.prototype.toString.call(num) === "[object Array]") {
+                for (var i = 0, len = num.length; i < len; i++) {
+                    this.dealItem(num[i], numFn);
+                }
+            } else {
+                this.dealItem(num, numFn);
+            }
+        }
+    };
+
+};
+//测试
+// <ul id="container"><li>1</li><li>2</li><li>3</li><li>4</li></ul>
+var demo = new Iterator('li', 'container');
+console.log(demo.first());
+console.log(demo.pre());
+console.log(demo.next());
+console.log(demo.get(2000));
+demo.dealEach(function(text, color) {
+    this.innerHTML = text;
+    this.style.backgroud = color;
+}, 'test', 'pink');
+demo.exclusive([2, 3], function() {
+    this.innerHTML = '被排除的';
+    this.style.backgroud = 'green';
+}, function() {
+    this.innerHTML = '选中的';
+    this.style.backgroud = 'red';
+});
+2, 数组迭代器
+var eachArray = function(arr, fn) {
+    var i = 0,
+        len = arr.length;
+    for (; i < len; i++) {
+        if (fn.call(arr[i], i, arr[i]) === false) {
+            break;
+        }
+    }
+};
+3, 对象迭代器
+var eachObject = function(obj, fn) {
+    for (var i in obj) {
+        if (fn.call(obj[i], i, obj[i]) === false) {
+            break;
+        }
+    }
+};
+//测试
+var arr = [1, 2, 5, 6];
+eachArray(arr, funciton(i, data) {
+    console.log(i, data);
+});
+var obj = {
+    a: 1,
+    b: 3,
+    c: 23
+}
+eachObject(obj, funciton(i, data) {
+    console.log(i, data);
+});
+4, 同步变量迭代器: 这个很有用， 用来检查后端返回json数据是否有字段。
+var AGetter = function(key) {
+        if (!A) {
+            return undefined;
+        }
+        var res = A,
+            key = key.split('.');
+        for (var i = 0, len = key.length; i < len; i++) {
+            if (res[key[i]] !== undefined) {
+                res = res[key[i]]
+            } else {
+                return undefined;
+            }
+        }
+        return res;
+    }
+    //测试
+var A = {
+    common: {},
+    client: {
+        user: {
+            username: 'doing',
+            uid: 123
+        }
+    },
+    server: {}
+};
+console.log(AGetter(client.user.username));
+console.log(AGetter(server.lang.local));
+5, 同步变量迭代赋值器
+var AGetter = function(key, val) {
+    if (!A) {
+        return false;
+    }
+    var res = A,
+        key = key.split('.');
+    for (var i = 0, len = key.length; i < len; i++) {
+        if (res[key[i]] === undefined) {
+            res[key[i]] = {};
+        }
+        if (!res[key[i]] instanceof Object) {
+            throw new Error('A.' + key.splice(0, i + 1).join('.') + 'is not object');
+            return false;
+        }
+        res = res[key[i]];
+    }
+    return res[key[i]] = val;
+};
+//测试
+var A = {
+    common: {},
+    client: {
+        user: {
+            username: 'doing',
+            uid: 123
+        }
+    },
+    server: {}
+};
+console.log(AGetter(client.user.username, 'john'));
+console.log(AGetter(server.lang.local, 'cn'));
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
--- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+-- -- -- -- -- -- -- --第26章: 解释器模式-- -- -- -- -- -- -- -- --
+    解释器模式: 对于客户的一个需求， 经过解析而形成的一个抽象解析程序。 如tmpl模板解析， seajs， babel等。
+1， xpath解析器
+var Interpreter = (function() {
+    //获取兄弟元素名称
+    function getSublingName(node) {
+        if (node.previousSibling) { //存在兄弟节点
+            var name = '',
+                count = 1,
+                nodeName = node.nodeName,
+                subling = node.previousSibling; //前一个兄弟节点
+            while (subling) {
+                if (subling.nodeType == 1 && subling.nodeType == node.nodeType && subling.nodeName) {
+                    if (nodeName == subling.nodeName) {
+                        name += ++count; //节点名称后边添加计数
+                    } else {
+                        count = 1; //重置相同紧邻节点名称节点个数
+                        name += '|' + ubling.nodeName.toUpperCase(); //追加新的节点名称
+                    }
+                }
+                subling = subling.previousSibling; //向前获取前一个兄弟节点
+            }
+            return name;
+        } else {
+            return '';
+        }
+    }
+    return function(node, wrap) {
+        //node:目标节点，wrap:容器节点
+        var path = [],
+            wrap = wrap || doucument;
+        if (node === wrap) { //当前目标节点等于容器节点
+            if (wrap.nodeType == 1) { //容器节点为元素
+                path.push(wrap.nodeName.toUpperCase());
+            }
+            return wrap;
+        }
+        if (node.parentNode !== wrap) {
+            path = arguments.callee(node.parentNode, wrap);
+        } else {
+            if (wrap.nodeType == 1) { //容器节点为元素
+                path.push(wrap.nodeName.toUpperCase());
+            }
+        }
+        var sublingsNames = getSublingName(node);
+        if (node.nodeType == 1) { //节点为元素
+            path.push(node.nodeName.toUpperCase() + sublingsNames);
+        }
+        return path;
+    }
+})();
+//测试
+dom结构略
+// <div>
+//   <ul>
+//     <li>
+//       <span>1</span>
+//       <span>2</span>
+//     </li>
+//     <li>
+//       <span id="span6">6</span>
+//       <span id="span7">7</span>
+//     </li>
+//   </ul>
+// </div>
+var path = Interpreter(doucument.getElementById('span7'));
+console.log(path.join('>')); //HTML>BODY|HEAD>DEV2>DEV>UL>LI>SPAN
+
+-- -- -- -- -- -- -- --技巧型设计模式-- -- -- -- -- -- -- -- -- -
+
+-- -- -- -- -- -- -- --第27章: 链模式-- -- -- -- -- -- -- -- -- -
+    1, 原型式继承
+var A = function() {};
+A.prototype = {
+    length: 2,
+    size: function() {
+        return this.length;
+    }
+};
+//测试
+var a = new A();
+console.log(a.size());
+console.log(A.size()); //报错
+console.log(A().size()); //报错
+2， 缺点优化
+var A = function() {
+    return A.fn;
+};
+A.fn = A.prototype = {
+    length: 2,
+    size: function() {
+        return this.length;
+    }
+};
+//测试
+var a = new A();
+console.log(a.size());
+console.log(A.size()); //报错
+console.log(A().size());
+3， 获取元素
+var A = function(selector) {
+    return A.fn.init(selector);
+};
+A.fn = A.prototype = {
+    length: 2,
+    init: function(selector) {
+        return document.getElementById(selector);
+    },
+    size: function() {
+        return this.length;
+    }
+};
+console.log(A('demo'));
+console.log(A('demo').size()); //报错
+4， 问题优化
+var A = function(selector) {
+    return A.fn.init(selector);
+};
+A.fn = A.prototype = {
+    length: 2,
+    init: function(selector) {
+        this[0] = document.getElementsByTagName(selector);
+        this.length = 1;
+        console.log(A.fn, A.prototype, this);
+        return this;
+    },
+    size: function() {
+        return this.length;
+    }
+};
+
+var demo = A('p');
+console.log(demo);
+console.log(demo.size());
+var test = A('div');
+console.log(demo); //这个对象被覆盖了
+console.log(demo.size());
+5， 优化
+var A = function(selector) {
+    return new A.fn.init(selector);
+};
+A.fn = A.prototype = {
+    length: 2,
+    constructor: A,
+    init: function(selector) {
+        this[0] = document.getElementsByTagName(selector); //为了测试，正常：getElementsById
+        this.length = 1;
+        console.log(A.fn, A.prototype, this);
+        return this;
+    },
+    size: function() {
+        return this.length;
+    }
+};
+A.fn.init.prototype = A.fn; //关键代码
+//测试
+var demo = A('p');
+console.log(demo);
+console.log(demo.size());
+var test = A('div');
+console.log(demo);
+console.log(demo.size());
+6, 丰富元素获取
+var A = function(selector, context) {
+    return new A.fn.init(selector, context);
+};
+A.fn = A.prototype = {
+    length: 2,
+    constructor: A,
+    init: function(selector, context) {
+        this.length = 0,
+            context = context || document;
+        if (~selector.indexOf('#')) { //将-1转为0
+            this[0] = document.getElementsById(selector.slice(1));
+            this.length = 1;
+        } else {
+            var doms = document.getElementsByTagName(selector),
+                i = 0,
+                len = doms.length;
+            for (; i < len; i++) {
+                this[i] = doms[i];
+            }
+            this.length = len;
+        }
+        this.context = context;
+        this.selector = selector;
+        return this;
+    },
+    size: function() {
+        return this.length;
+    },
+    push: [].push,
+    sort: [].sort
+};
+A.fn.init.prototype = A.fn; //关键代码
+7, 对象、 方法拓展
+A.extend = A.fn.extend = function() {
+    var i = 1,
+        len = arugemnts.length,
+        target = arguments[0],
+        j;
+    if (i == len) {
+        target = this;
+        i--; //只有一个参数，i从0计数
+    }
+    for (; i < len; i++) {
+        for (j in arguments[i]) {
+            target[j] = arguments[i][j];
+        }
+    }
+    return target;
+
+};
+//测试
+var demo = A.extend({
+    first: 1
+}, {
+    first: 2
+});
+console.log(demo);
+A.extend(
+    A.fn, {
+        version: 1
+    });
+A.extend(
+    A, {
+        name: 'john'
+    });
+//事件方法处理
+A.fn.extend({
+    on: (function() {
+        if (document.addEventListener) {
+            return function(type, fn) {
+                var i = this.length - 1;
+                for (; i >= 0; i--) {
+                    this[i].addEventListener(type, fn, false);
+                }
+                return this;
+            };
+        } else if (document.attachEvent) {
+            return function(type, fn) {
+                var i = this.length - 1;
+                for (; i >= 0; i--) {
+                    this[i].attachEvent('on' + type, fn);
+                }
+                return this;
+            };
+        } else {
+            return function(type, fn) {
+                var i = this.length - 1;
+                for (; i >= 0; i--) {
+                    this[i]['on' + type] = fn;
+                }
+                return this;
+            };
+        }
+    })()
+});
+//将-样式处理成驼峰
+A.extend({
+    camelCase: function(str) {
+        return str.replace(/\-(\w)/g, function(all, letter) {
+            return letter.toUpperCase();
+        });
+    }
+});
+A.extend({
+    css: function() {
+        var arg = arugemnts,
+            len = arg.length;
+        if (this.length < 1) {
+            return this;
+        }
+        if (len === 1) {
+            if (typeof arg[0] === 'string') {
+                if (this[0].currentStyle) { //ie
+                    return this[0].currentStyle[name];
+                } else {
+                    return getComputeStyle(this[0], false)[name];
+                }
+            } else if (typeof arg[0] === 'object') {
+                for (var i in arg[0]) {
+                    for (var j = this.length - 1; j >= 0; j--) {
+                        this[j].style[A.camelCase(i)] = arg[0][1];
+                    }
+                }
+            }
+        } else if (len === 2) {
+            for (var j = this.length - 1; j >= 0; j--) {
+                this[j].style[A.camelCase(arg[0])] = arg[1];
+            }
+        }
+        return this;
+    }
+});
+A.fn.extend({
+    attr: function() {
+        var arg = arguments,
+            len = arg.length;
+        if (this.length < 1) {
+            return this;
+        }
+        if (len === 1) {
+            if (typeof arg[0] === 'string') {
+                return this[0].getAttribue(arg[0]);
+            } else if (typeof arg[0] === 'object') {
+                for (var i in arg[0]) {
+                    for (var j = this.length - 1; j >= 0; j--) {
+                        this[j].setAttibute(i, arg[0][i]);
+                    }
+                }
+            }
+        } else if (len === 2) {
+            for (var j = this.length - 1; j >= 0; j--) {
+                this[j].setAttibute(arg[0], arg[1]);
+            }
+        }
+        return this;
+    }
+});
+A.fn.extend({
+    html: function() {
+        var arg = arguments,
+            len = arg.length;
+        if (len == 0) {
+            return this[0] && this[0].innerHTML;
+        } else {
+            for (var j = this.length - 1; j >= 0; j--) {
+                this[j].innerHTML = arg[0];
+            }
+        }
+        return this;
+    }
+});
+//测试
+A('div').css({
+  height:'30px',
+  'backgroud-color':'red'
+}).attr('class','demo').html('add text').on('click',function(){
+  console.log('clicked');
+});
+-- -- -- -- -- -- -- -- -- -- 第28章: 委托模式-- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
