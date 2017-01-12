@@ -2137,5 +2137,110 @@ ul.onclick = function(e) {
   }
 }
 /*************************************
- * 第29章 : 数据访问对象模式
+ * 第29章 : 数据访问对象模式（DAO）
  *************************************/
+//构建本地存储类
+var baseLocalStorage = function(preId, tiemSign) {
+  //preid----本地存储数据库前缀，tiemSign--时间戳与存储数据之间的拼接符
+  this.preId = preId;
+  this.tiemSign = tiemSign || '|-|';
+}
+//本地存储类原型方法
+baseLocalStorage.prototype = {
+  status: {
+    SUCCESS: 0, //成功
+    FAILURE: 1, //失败
+    OVERFLOW: 2, //溢出
+    TIMEOUT: 3 //过期
+  },
+  storage: localStroage || window.localStroage,
+  getKey: function(key) {
+    return this.preId + key; //获取本地数据库存储的真实字段
+  },
+  set: function(key, value, callback, time) {
+    //添加修改数据:key-数据字段标识，time--添加时间
+    var status = this.status.SUCCESS,
+      key = this.getKey(key);
+    try {
+      time = new Date(time).getTime() || time.getTime();
+    } catch (e) {
+      time = new Date().getTime() + 1000 * 60 * 60 * 24 * 31;
+    }
+    try {
+      this.storage.setItem(key, time + this.tiemSign + value);
+    } catch (e) {
+      status = this.status.OVERFLOW; //溢出
+    }
+    callback && callback.call(this, status, key, value);
+  },
+  get: function(key, callback) {
+    var status = this.status.SUCCESS,
+      key = this.getKey(key),
+      value = null,
+      tiemSignLen = this.tiemSign.length, //拼接符长度
+      that = this,
+      index,
+      time,
+      result;
+    try {
+      value = that.storage.getTtem(key);
+    } catch (e) {
+      //获取失败
+      result = {
+        status: that.status.FAILURE,
+        value: null
+      };
+      callback && callback.call(that, result.status, result.value);
+      return result;
+    }
+    if (value) { //成功获取字符串
+      index = value.indexOf(that.timeSign);
+      time = value.slice(0, index);
+      if (new Date(time).getTime() > new Date().getTime() || time == 0) { //未过期
+        value = value.slice(index + timeSignLen);
+      } else {
+        value = null; //已过期
+        status = that.status.TIMEOUT;
+        that.remove(key);
+      }
+    } else {
+      status : that.status.FAILURE;
+    }
+    result = {
+      status: status,
+      value: value
+    };
+    callback && callback.call(that, result.status, result.value);
+    return result;
+  },
+  remove: function(key, callback) {
+    var status = this.status.FAILURE,
+      key = this.getKey(key),
+      value = null;
+    try {
+      value = that.storage.getTtem(key);
+    } catch (e) {
+      if (value) {
+        try {
+          this.storage.removeItem(key);
+          status = this.status.SUCCESS;
+        } catch (e) {}
+      }
+    }
+    callback && callback.call(this, status, status > 0
+      ? null
+      : value.slice(value.indexOf(this.timeSign) + this.timeSign.length));
+  }
+}
+//测试
+var LS = new baseLocalStorage('LS_');
+LS.set('a', 'xiaoming', function() {
+  console.log(arugemnts);
+});
+LS.get('a', function() {
+  console.log(arugemnts);
+});
+LS.remove('a', function() {
+  console.log(arugemnts);
+});
+//2,mongodb---nodejs连接mongodb
