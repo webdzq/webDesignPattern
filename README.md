@@ -13,6 +13,8 @@
 5，模式就是一种思想。切记生搬硬套。就如每一场战争，可能运用了36计中的很多计策组合。
 6，book1-javascript设计模式与开发实践  ---曾探（2015年出版），内容比较深。
 7，book2-javascript设计模式 张容铭著（2015.8出版）由浅入深，比较容易理解。对比着看，颇有收获
+8，book3-es6实现设计模式。es6在es5上有较大改动。
 参考文献：
 1，菜鸟教程（java实现设计模式）（http://www.runoob.com/design-pattern/design-pattern-tutorial.html）
+2，es6实现设计模式：https://github.com/tcorral/Design-Patterns-in-Javascript
 </pre>

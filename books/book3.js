@@ -1,0 +1,1 @@
+//es6实现设计模式：https://github.com/tcorral/Design-Patterns-in-Javascript

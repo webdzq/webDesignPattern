@@ -2601,17 +2601,92 @@ A.view = function (name) {
 //惰性执行
 A.on = function (dom, type, fn) {
     if (dom.addEventListener) {
-        A.on = function ()(dom, type, fn) {
+        A.on = function (dom, type, fn) {
             dom.addEventListener(type, fn, false);
         }
     } else if (dom.attachEvent) {
-        A.on = function ()(dom, type, fn) {
+        A.on = function (dom, type, fn) {
             dom.attachEvent('on' + type, fn);
         }
     } else {
-        A.on = function ()(dom, type, fn) {
+        A.on = function (dom, type, fn) {
             dom['on' + type] = fn;
         }
     }
     A.on(dom, type, fn); //执行重定义函数
+};
+/*************************************
+ * 第33章 : 参与者模式
+ * @bref:在特定的作用域中执行给定的函数，并将参数原封不动的传递
+ *************************************/
+//1， 事件绑定并传递参数
+A.event.on = function (dom, type, fn, data) {
+    if (dom.addEventListener) {
+        A.event.on = function (dom, type, fn, data) {
+            dom.addEventListener(type, function (e) {
+                fn.call(dom, e, data);
+            }, false);
+        }
+    } else if (dom.attachEvent) {
+        A.event.on = function (dom, type, fn, data) {
+            dom.attachEvent('on' + type, function (dom, type, fn, data) {
+                fn.call(dom, e, data);
+            });
+        }
+    } else {
+        A.event.on = function (dom, type, fn) {
+            dom['on' + type] = function (dom, type, fn, data) {
+                fn.call(dom, e, data);
+            };
+        }
+    }
+    A.event.on(dom, type, fn, data); //执行重定义函数
+};
+//2,函数柯里化---多参数的应用
+function curry() {
+    var Slice = [].slice;
+    var args = Slice.call(arguments, 1);
+    return function () {
+        var addArgs = Slice.call(arguments),
+            allArgs = args.concat(addArgs);
+        return fn.apply(null, allArgs);
+
+    }
 }
+//测试-加法器
+function add(n1, n2) {
+    return n1 + n2;
+}
+
+function add5(num) {
+    return add(5, num);
+}
+console.log(add5(6));
+var add5_1 = curry(add, 5); //柯里化创建的加5加法器
+console.log(add5_1(6));
+var add7add8 = curry(add, 7, 8); //柯里化创建的加5加法器
+console.log(add7add8());
+
+//3,bind函数
+
+function bind(fn, context) {
+    var Slice = Array.prototype.slice,
+        args = Slice.call(arguments, 2);
+    return function () {
+        var addArgs = Slice.call(arguments),
+            allArgs = args.concat(addArgs);
+        return fn.call(context, allArgs);
+
+    }
+
+}
+//4,反柯里化---方便函数的调用
+Function.prototype.uncurry = function () {
+    var that = this;
+    return function () {
+        return Function.prototype.call.apply(that, arguments); //注意这行
+    }
+}
+var toString = Object.prototype.toString.uncurry();
+
+console.log(toString([]));
