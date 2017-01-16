@@ -2690,3 +2690,233 @@ Function.prototype.uncurry = function () {
 var toString = Object.prototype.toString.uncurry();
 
 console.log(toString([]));
+var push = [].push.uncurry();
+var demoObj = {};
+push(demoObj, 'one', 'two');
+console.log("demoObj...=", demoObj);
+/*************************************
+ * 第34章 : 等待者模式
+ * @bref:通过对多个异步进程监听，来触发未来发生的动作
+ *************************************/
+var Waiter = function () {
+        var dfd = [], //等待对象接口
+            doneArr = [], //成功对象接口
+            failArr = [], //失败对象接口
+            slice = Array.prototype.slice,
+            that = this;
+        //监控对象类
+        var Promise = function () {
+            this.resoled = false; //是否解决成功状态
+            this.rejectd = false; //是否解决失败状态
+        }
+        Promise.prototype = {
+                resolve: function () {
+                    this.resoled = true;
+                    if (!dfd.length) {
+                        return;
+                    }
+                    for (var i = dfd.lenght; i >= 0; i--) {
+                        if (dfd[i] && !dfd.resoled || dfd.rejected) {
+                            return; //如果有任意一个监控对象解决失败则返回
+                        }
+                        dfd.splice(i, 1); //清除监控对象
+                    }
+                    _exec(doneArr); //执行回调
+
+                },
+                reject: function () {
+                    this.reject = true;
+                    if (!dfd.length) {
+                        return;
+                    }
+                    dfd.splice(0); //清除监控对象
+                    _exec(failArr); //执行回调
+                }
+            }
+            //创建监控对象
+        that.Deferred = function () {
+                return new Promise();
+            }
+            //回调执行方法
+        function _exec(arr) {
+            var i = 0,
+                len = arr.length;
+            for (; i < len; i++) {
+                try {
+                    arr[i] && arr[i]();
+                } catch (e) {
+
+                }
+            }
+        };
+        //监控异步方法
+        that.when = function () {
+            dfd = slice.call(arguments);
+            var i = dfd.length;
+            for (--i; i >= 0; i--) {
+                //不存在，或已经解决，或不是监控对象
+                if (!dfd[i] || dfd[i].resoled || dfd[i].reject || !dfd[i] instanceof Promise) {
+                    dfd.splice(i, 1); //清除监控对象
+                }
+            }
+            return that;
+        };
+        that.done = funciton() {
+            doneArr = doneArr.concat(slice.call(arguments));
+            return that;
+        };
+        that.fail = function () {
+            failArr = failArr.concat(slice.call(arguments));
+            return that;
+        };
+
+    }
+    //测试：随机几个运动彩蛋，运动结束后弹出欢迎界面
+var waiter = new Waiter();
+var first = function () {
+    var dtd = waiter.Deferred();
+    setTimeout(function () {
+        console.log('first finish');
+        dtd.resolve();
+    }, 5000);
+    return dtd;
+}();
+var second = function () {
+    var dtd = waiter.Deferred();
+    setTimeout(function () {
+        console.log('second finish');
+        dtd.resolve();
+    }, 10000);
+    return dtd;
+}();
+var three = function () {
+    var dtd = waiter.Deferred();
+    setTimeout(function () {
+        console.log('three finish');
+        dtd.reject();
+    }, 10000);
+    return dtd;
+}();
+waiter.when(first, second, three).done(function () {
+    console.log('success');
+}, function () {
+    console.log('success again');
+}).fail(function () {
+    console.log('fail');
+});
+//长轮询
+(function getAjaxData() {
+    var fn = arguments.callee;
+    setTimeout(function () {
+        $.get('test.php', function () {
+            console.log('轮询一次');
+            fn();
+        });
+    }, 5000);
+})()
+/*************************************
+ *
+ *---------架构型设计模式------------
+ * 
+ *************************************/
+
+
+/*************************************
+ * 第35章 : 同步模块模式（smd）
+ * @bref:
+ *************************************/
+var F = F || {};
+F.define = function (str, fn) {
+    //str--模块路由，fn--模块方法
+    var parts = str.split('.'),
+        old = parent = this, //old--祖父模块，parent--父模块
+        i = len = 0; //i--模块层级，len模块层级长度
+    if (parts[0] === F) { //如果第一个模块是模块单体对象，就移除
+        parts = parts.slice(1);
+    }
+    if (parts[0] === 'define' || parts[0] === 'module') { //屏蔽对define和module的重写
+        return;
+    }
+    //遍历路由模块并定义每层模块
+    for (len = parts.length; i < len; i++) {
+        if (typeof parent[parts[i]] === 'undefined') {
+            parent[parts[i]] = {}; //父模块不存在当前模块
+        }
+        old = parent; //缓存下一级的祖父模块
+        parent = parent[parts[i]]; //缓存下一级的父模块
+    }
+    if (fn) { //如果给定模块方法，就定义该模块方法
+        old[parts[i--]] = fn(); //此时i等于parts.length,故减1  
+    }
+    return this;
+
+};
+//创建模块
+F.define（ 'string',
+    function () {
+        return {
+            trim: function () {
+                return str.replace(/^\s+|\s+$/g, '');
+            }
+        }
+    });
+F.string.trim('   测试   ');
+
+F.define（ 'dom',
+    function () {
+        var $ = function (id) {
+            $.dom = document.getElementById(id);
+            return $;
+        }
+        $.html = function (html) {
+            if (html) {
+                this.dom.innerHTML = html;
+                return this;
+            } else {
+                return this.dom.innerHTML;
+            }
+        }
+        return $;
+    });
+
+F.dom('test').html(); //<div id ="test">test</div>
+
+F.define('dom.addClass');
+
+F.dom.addClass = function (type, fn) {
+    return function (className) {
+        if (!~this.dom.className.indexOf(className)) {
+            this.dom.className += ' ' + className;
+        }
+    }
+}();
+F.dom('test').addClass('test'); //<div id ="test" class="test">test</div>
+//模块调用方法
+F.module = function () {
+    var args = [].slice.call(arguments),
+        fn = args.pop(),
+        parts = args[0] && args[0] instanceof Array ? args[0] : args, //获取依赖模块
+        modules = [], //依赖模块列表
+        modIDs = '', //模块路由
+        i = 0, //模块索引
+        ilen = parts.length, //模块长度
+        parent, j, jlen; //父模块，路由索引，路由索引长度
+    while (i < ilen) { //遍历依赖模块
+        if (typeof parts[i] === 'string') { //如果是路由
+            parent = this; //设置当前模块父对象
+            modIDs = parts[i].replace(/^F\./, '').split('.'); //解析模块路由
+            for (j = 0, jlen = modIDs.length; j < jlen; j++) {
+                parent = parent[modIDs[j]] || false; //重置父模块
+            }
+            modules.push(parent); //加入依赖列表
+        } else { //如果是模块对象
+            modules.push(parts[i]);
+        }
+
+        i++;
+
+    }
+
+    fn.apply(null, modules);
+
+}
