@@ -2820,10 +2820,10 @@ waiter.when(first, second, three).done(function () {
  * 
  *************************************/
 
-
+//模块化：将复杂系统分解成高内聚、低耦合的模块，使系统开发变得可控，可维护，可拓展，提高模块的复用率
 /*************************************
  * 第35章 : 同步模块模式（smd）
- * @bref:
+ * @bref:实现模块开发中对模块的立即引用
  *************************************/
 var F = F || {};
 F.define = function (str, fn) {
@@ -2919,4 +2919,17 @@ F.module = function () {
 
     fn.apply(null, modules);
 
-}
+};
+F.module(['dom', document], function (dom, doc) {
+    dom('test').html('new add');
+    doc.body.style.background = 'red';
+});
+F.module(['dom', 'string.trim'], function (dom, trim) {
+    var html = dom('test').html();
+    var str = trim(html);
+    console.log(str);
+});
+/*************************************
+ * 第36章 : 异步模块模式（AMD）
+ * @bref:实现模块开发中对模块加载完成后的引用
+ *************************************/
