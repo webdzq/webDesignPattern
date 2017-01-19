@@ -2823,7 +2823,7 @@ waiter.when(first, second, three).done(function () {
 //模块化：将复杂系统分解成高内聚、低耦合的模块，使系统开发变得可控，可维护，可拓展，提高模块的复用率
 /*************************************
  * 第35章 : 同步模块模式（smd）
- * @bref:实现模块开发中对模块的立即引用
+ * @bref:实现模块开发中对模块的立即引用。依赖模块必须提前加载好
  *************************************/
 var F = F || {};
 F.define = function (str, fn) {
@@ -2931,5 +2931,138 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
 });
 /*************************************
  * 第36章 : 异步模块模式（AMD）
- * @bref:实现模块开发中对模块加载完成后的引用
+ * @bref:实现模块开发中对模块加载完成后的引用。待模块加载完成后，执行回调。
  *************************************/
+//1，创建模块管理器F
+~(function (F) {
+    var moduleCache = {},
+        setModule = function (moduleName, params, callback) {
+            //moduleName--模块id，params--依赖模块，callback--构造函数
+
+            var _module, fn;
+            if (moduleCache[moduleName]) {
+                _module = moduleCache[moduleName];
+                _module.status = 'loaded';
+                _module.exports = callback ? callback.apply(_module, params) : null;
+                while (fn = _module.onload.shift()) {
+                    fn(_module.exports);
+                }
+
+            } else {
+                //模块不存在，直接回调
+                callback && callback.apply(null, params);
+            }
+
+        },
+        loadModule = function (moduleName, callback) {
+            var _module;
+            if (moduleCache[moduleName]) { //如果依赖模块被要求加载过
+                _module = moduleCache[moduleName]; //获取该模块信息
+                if (_module.status === 'loaded') { //如果模块加载完成
+                    setTimeout(callback(_module.exports), 0); //执行模块加载，完成回调
+                } else {
+                    _module.onload.push(callback); //缓存该模块所处文件加载完成回调
+                }
+            } else {
+                //模块引用第一次被依赖
+                moduleCache[moduleName] = {
+                    moduleName: moduleName, //模块id
+                    status: 'loading', //默认状态
+                    exports: null, //模块接口
+                    onload: [callback] //回调函数缓存器
+
+                };
+                loadScript(getUrl(moduleName)); //加载模块对应文件
+            }
+
+        },
+        getUlr = function (moduleName) { //拼接完整的文件路径字符串
+            return String().replace(/\.js$/g, '') + '.js';
+        },
+        loadScript = function (src) { //加载脚本文件
+            var _script = document.createElement('script');
+            _script.type = 'text/JavaScript';
+            _script.charSet = 'UTF-8';
+            _script.async = true; //异步加载
+            _script.src = src;
+            document.getElementsByTagName('head')[0].appendChild(_script); //插入页面中
+
+        };
+
+    F.module = function (url, modDeps, modCallback) {
+        //url--模块url，modDeps--依赖模块，modCallback--模块主函数
+        var args = [].slice.call(arguments),
+            callback = args.pop(),
+            deps = (args.length && args[args.length - 1] instanceof Array) ? args.pop() : [],
+            url = args.length ? args.pop() : null,
+            params = [], //依赖模块序列
+            depsCount = 0, //未加载依赖模块数量统计
+            i = 0, //依赖模块序列索引
+            len = deps.length; //依赖模块序列长度
+        if (len) { //存在依赖模块
+            while (i < len) {
+
+                (function (i) {
+                    depsCount++;
+                    //异步加载依赖模块
+                    loadModule(deps[i], function (mod) {
+                        params[i] = mod;
+                        depsCount--;
+                        if (depsCount === 0) {
+                            setModule(url, params, callback); //在模块缓存器中矫正该模块，并执行构造函数
+                        }
+                    });
+                })(i);
+                i++;
+            }
+
+        } else { //无依赖模块，直接执行回调
+            setModule(url, [], callback);
+        }
+    };
+
+})((function () {
+    return window.F = {};
+})());
+//练习
+F.module('lib/dom', function () {
+    return {
+        g: function (id) {
+            return document.getElementById(id);
+        },
+        html: function (id, html) {
+            if (html) {
+                this.g(id).innerHTML = html;
+            } else {
+                return this.g(id).innerHTML
+            }
+        }
+    }
+});
+F.module('lib/event', ['lib/dom'], function (dom) {
+    var events = {
+        on: function (id, type, fn) {
+            dom.g(id)['on' + type] = fn;
+        }
+    };
+    return events;
+});
+F.module('lib/event', 'lib/dom', function (events, dom) {
+    events.on('demo', 'click', function () {
+        dom.html('demo', 'success');
+    });
+});
+
+/*************************************
+ * 第37章 : Widget模式
+ * @bref:借用web Widget思想将页面分割成部件。
+ * 针对部件开发，最终组合成完整页面
+ *************************************/
+
+F.module('lib/template', function () {
+    var _TplEngine = function () {}, //模板引擎
+        _getTpl = function () {}, //获取模板
+        _dealTpl = function () {}, //处理模板
+        _compileTpl = function () {}; //编译执行
+    return _TplEngine;
+});
