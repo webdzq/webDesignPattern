@@ -3060,9 +3060,380 @@ F.module('lib/event', 'lib/dom', function (events, dom) {
  *************************************/
 
 F.module('lib/template', function () {
-    var _TplEngine = function () {}, //模板引擎
-        _getTpl = function () {}, //获取模板
-        _dealTpl = function () {}, //处理模板
-        _compileTpl = function () {}; //编译执行
+    var _TplEngine = function (str, data) { //模板引擎
+            if (data instanceof Array) {
+                var html = '',
+                    i = 0,
+                    len = data.length;
+                for (; i < len; i++) {
+                    html += _getTpl(str)(data[i]);
+                }
+                return html;
+            } else {
+                return _getTpl(str)(data);
+            }
+        },
+        _getTpl = function (str) { //获取模板
+            //str==模块id，模块字符串
+            var ele = document.getElementById(str);
+            if (ele) {
+                var html = /^(input|textarea)$/i.test(ele.nodeName) ? ele.vaule ? ele.innerHTML;
+                return _compileTpl(html); //编译模板
+            } else {
+                return _compileTpl(str); //编译模板
+            }
+        },
+        _dealTpl = function (str) {
+            //模板形式：<a>{%=test%}</a>
+            //处理后：template_array.push('<a>',typeof(test)==='undefined'?'':test,'</a>');
+            var _left = "{%"; //左分隔符
+            var _right = "%}"; //右分隔符
+            return String(str).replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/[\t\n\r]/g, '')
+                .replace(new RegExp(_left + '=(.*?)' + _right, 'g'), "',typeof($1)==='undefined'?'':$1,'")
+                .replace(new RegExp(_left, 'g'), "');")
+                .replace(new RegExp(_right, 'g'), "template_array.push('");
+
+        }, //处理模板
+        _compileTpl = function (str) { //编译执行
+            var fnBody = "" +
+                "var template_array=[];\n" +
+                "var fn=(functon(data){\n" +
+                "var template_key='';\n" +
+                "for(var key in data){\n" +
+                "template_key+=('var '+key+'=data[\"'+key+'\"];');\n" +
+                "}\n" +
+                "eval(template_array);\n" +
+                "template_array.push('" + _dealTpl(str) + "');\n" +
+
+                "template_key=null;\n" +
+                "})(templateData);\n" +
+                "fn=null;\n" +
+                "return template_array.join('');"
+            return new Function("templateData", fnBody);
+        };
     return _TplEngine;
 });
+
+
+
+
+
+
+
+//应用
+//模板
+/**
+< script type = "text/template"
+id = "demo_script" >
+    ........ < /script> 
+**/
+//数据：
+data = {
+    tagCloud: [
+        {
+            is_selected: true,
+            title: '这是一本设计书',
+            text: '设计模式'
+         },
+        {
+            is_selected: true,
+            title: '这是一本设计书',
+            text: '设计模式'
+         }]
+};
+F.module(['lib/template', 'lib/dom'], function (template, dom) {
+    var str = template('demo_script', data);
+    dom.html('test', str);
+});
+/*************************************
+ * 第38章 : MVC模式
+ * @bref:用一种将业务，数据，视图分离的方式组织架构代码。达到组件化，层次清晰的目的
+ * 
+ *************************************/
+
+$(function () {
+    var MVC = MVC || {};
+    MVC.model = function () { //数据层
+        var M = {};
+        M.data = {
+            slidebar: [{
+
+                }, {
+
+                }]
+        };
+        M.conf = {
+            slidebarCloseAnimate: false; //侧边栏动画配置数据
+        };
+        return {
+            getData: function (m) {
+                return M.data[m];
+            },
+            getConf: function (c) {
+                return M.conf[c];
+            },
+            setData: function (m, v) {
+                M.data[m] = v;
+                return this;
+            },
+            setConf: function (c, v) {
+                M.conf[c] = v;
+                return this;
+            }
+
+
+        }
+    }();
+    MVC.view = function () { //视图层
+        var M = MVC.model;
+        var V = {
+            createSlideBar: function () {
+
+            }
+        };
+        return function (v) {
+            V[v]();
+        }
+    }();
+    MVC.ctrl = function () { //控制器
+        var M = MVC.model;
+        var V = MVC.view;
+        var C = {
+            initSlideBar: function () {
+
+            }
+        };
+        //C.initSlideBar();
+        for (var i in C) {
+            C[i] && C[i]();
+        }
+
+    }();
+
+
+});
+/*************************************
+ * 第39章 : MVP模式
+ * @bref:p-管理器（presenter）view层不调用model，所有的交互都发生在p层。
+ * 
+ *************************************/
+~(function (window) {
+    var MVP = function (modName, pst, data) { //mvp构造函数
+        MVP.model.setData(modName, data);
+        MVP.presenter.add(modName, pst);
+    };
+    MVP.model = function () {
+        var M = {};
+        M.data = {
+            slidebar: [{
+
+                }, {
+
+                }]
+        };
+        M.conf = {
+            slidebarCloseAnimate: false; //侧边栏动画配置数据
+        };
+        return {
+            getData: function (m) {
+                return M.data[m];
+            },
+            getConf: function (c) {
+                return M.conf[c];
+            },
+            setData: function (m, v) {
+                //m-模块名称，v-模板数据
+                M.data[m] = v;
+                return v;
+            },
+            setConf: function (c, v) {
+                M.conf[c] = v;
+                return v;
+            }
+
+
+        }
+    }();
+    MVP.view = function () { //分层模板：>--上下级,+--兄弟级,
+        var REPLACEKEY = '_REPLACEKEY_';
+
+        function getHTMl(str, type) { //获取完整元素模板，模板：{#内容#}
+            //str--元素字符串，type--元素类型
+            return str.replace(/^(\w+)([^\{\}]*)?(\{([@\w]+)\})?(.*?)$/, function (match, $1, $2, $3, $4, $5) {
+                    $2 = $2 || ''; //元素属性容错处理
+                    $3 = $3 || ''; //{元素内容}参数容错处理
+                    $4 = $4 || ''; //元素内容参数容错处理
+                    $5 = $5.replace(/\{([@\w]+)\}/g, ''); //去除元素内容后面的添加的元素属性中的{}内容
+
+                    //以str=div为例：如果div元素有子元素则表示成<div>_REPLACEKEY_</div>,如果有兄弟元素则表示成
+                    //<div></div>_REPLACEKEY_,否则表示成<div></div>
+                    return type === 'in' ? '<' + $1 + $2 + $5 + '>' + $4 + REPLACEKEY + '</' + $1 + '>' : type === 'add' ?
+                        '<' + $1 + $2 + $5 + '>' + $4 + '</' + $1 + '>' + REPLACEKEY :
+                        '<' + $1 + $2 + $5 + '>' + $4 + '</' + $1 + '>'
+                })
+                .replace(/#([@\-\w]+)/g, 'id="$1"') //处理特殊标识#-id属性
+                .replace(/\.([@\-\s\w]+])/g, 'class="$1"') //处理特殊标识.-class属性
+                .replace(/\[(.+)\]/g, function (match, key) { //处理其他属性组
+                    var a = key.replace(/'||"/g, '').split(' '),
+                        h = '';
+                    for (var j = 0, len = a.length; j < len; j++) {
+                        h += ' ' + a[j].replace(/=(.*)/g, '="$1"');
+                    }
+                    return h; //返回属性组模板字符串
+                })
+                .replace(/@(\w+)/g, '{#$1#}'); //处理可替换内容
+
+
+        }
+
+        function eachArray(arr, fn) { //数组遍历器
+            for (var i = 0, len = arr.length; i < len; i++) {
+                fn(i, arr[i], len);
+            }
+        }
+
+        function formateItem(str, rep) {
+            //str--原始字符串，rep--兄弟元素模板或者子元素模板
+            return str.replace(new RegExp(REPLACEKEY, 'g'), rep);
+        }
+        return function (str) { //模板解析器
+            var part = str.replace(/^\s+|\s+$/g, '')
+                .replace(/^\s+(>)\s+$/g, '$1')
+                .split('>'),
+                html = REPLACEKEY, //模板视图跟模板
+                item, //同层元素
+                nodeTpl; //同级模板
+            eachArray(part, function (partIndex, partValue, partLen) {
+                item = partValue.split('+'), //为同级元素分组
+                    nodeTpl = REPLACEKEY;
+                eachArray(item, function (itemIndex, itemValue, itemLen) {
+                    nodeTpl = formateItem(nodeTpl, getHTMl(itemValue, itemIndex === itemLen - 1 ? (partIndex === partLen - 1 ? '' : 'in') : 'add'));
+                });
+                html = formateItem(html, nodeTpl); //用渲染子层级得到的模板去渲染父层级模板
+
+            });
+            return html; //返回期望视图模板
+        }
+
+    }();
+    MVP.presenter = function () {
+        var V = MVP.view();
+        var M = MVP.model();
+        var C = {};
+        return {
+            init: function () {
+                for (var i in C) {
+                    C[i] && C[i](M, V, i);
+                }
+            },
+            add: function (modName, pst) { //添加管理器模块
+                //pst--模块管理器
+                C[modName] = pst;
+                return this;
+
+            }
+        }
+    }();
+    MVP.init = functino() {};
+    window.MVP = MVP;
+})(window);
+//案例
+//模块开发中的应用
+F.module('lib/MVP', function () {
+    var MVP = function (modName, pst, data) { //mvp构造函数
+        MVP.model.setData(modName, data);
+        MVP.presenter.add(modName, pst);
+    };
+    ...
+    return MVP;
+});
+//添加一个模块
+F.module('lib/MVP', 'lib/A', function (MVP, $) {
+    $(function () {
+        MVP('sites', function (M, V, modName) {
+            //渲染模板<li><a href="#">{#text#}</a></li>
+            var tpl = V('li>a[herf="#"]{#text#}');
+            $.create('ul', {
+                    class: 'store-nav',
+                    'id': modName
+                }).html($.formateString(tpl, M.getData(modName)))
+                .appendTo('#container');
+
+        }, [
+                    '聚划算',
+                    '1号店'
+                ]);
+    });
+});
+//mvp入口
+$(function () {
+    MVP.init();
+});
+/*************************************
+ * 第39章 : MVVM模式
+ * @bref:
+ * 
+ *************************************/
+//~ 屏蔽压缩报错
+/**
+<div class="first" data-bind="type:'slider,data:demo1"></div>
+<div class="second" data-bind="type:'slider,data:demo2"></div>
+<div class="third" data-bind="type:'progressbar,data:demo3"></div>
+**/
+~(function () {
+    var window = this || (0, eval)('this'); //在闭包中获取全局变量
+    var FONTSIZE = function () { //获取页面字体大小
+        return parseInt(document.body.currentStyle ? document.body.currentStyle[fontSize] : getComputedStyle(document.body, false)['fontSize']);
+
+    }();
+    var VM = function () {
+        var Method = {
+            progressBar: function (dom, data) {
+                var progress = document.createElement('div'),
+                    param = data.data; //{position:100}
+                progress.style.width = (param.position || 100) + '%';
+                dom.className += 'ui-progress';
+                dom.appendChild(progress);
+
+            },
+            slider: functioin(dom, data) {
+                ...
+            }
+        };
+
+        function getBindData(dom) {
+            var data = dom.getAttribute('data-bind');
+            return !!data && (new Function("return ({" + data + "})"))(); //将自定义属性转化为对象
+        }
+        return function () { //组件实例化方法
+            var doms = document.body.getElementsByTagName('*'),
+                ctx = null;
+            for (var i = 0; i < doms.length; i++) {
+                ctx = getBindData(doms[i]);
+                ctx.type && Method[ctx.type] && Method[ctx.type](doms[i], ctx);
+            }
+        }
+    }(); //视图模型对象
+    window.VM = VM;
+
+})();
+//案例
+var demo1 = {
+        position: 60,
+        title: 200
+    },
+    demo2 = {
+        position: 20
+    },
+    demo3 = {
+        position: 50
+    };
+window.onload = function () {
+    VM();
+};
+/**
+*******附录A框架**********
+
+**/
