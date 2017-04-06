@@ -536,7 +536,7 @@ VM16886:49 Pasta: Spaghetti with Marinara Sauce, and a slice of sourdough bread,
 /*************************************
  * 3,Compound（复合模式）
  *@bref：类似组合模式。
- * 三个示例演示了这个过程：单个鸭子--》鸭子工厂--》鸭子集群--观察者鸭子集群。
+ * 三个示例演示了这个过程：单个鸭子--》鸭子工厂--》鸭子集群--》带观察者的鸭子集群。
  * 应用如：层次复杂的文件系统，树结构等。打开脑洞，自由发散。
  *************************************/
 
@@ -1027,20 +1027,943 @@ console.log(QuackCounter.getQuacks());
 /**----------------------------end-------------------------------**/
 
 /*************************************
- * 5,Chaining（方法链模式）
- *@bref：。
- * 。
- * 应用如：等。打开脑洞，自由发散。
+ * 5,Decorator（装饰器模式）
+ *@bref：允许向一个现有的对象添加新的功能，同时又不改变其结构。这种类型的设计模式属于结构型模式，它是作为现有的类的一个包装。
+ * 动态地给一个对象添加一些额外的职责。就增加功能来说，装饰器模式相比生成子类更为灵活。
+ * 示例是搭配一杯用户需要的咖啡：浓咖啡+奶牛泡沫+摩卡。栗子有点简单，其实功能很强大。
+ * 应用如：购物账单，各模块组合，旧模块扩展新功能等。打开脑洞，自由发散。
  *************************************/
+
+//Beverage.js
+class Beverage { //饮料
+    constructor(description = 'Unknown beverage') {
+        this.description = description;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    cost() {
+        throw new Error("This method must be overwritten!");
+    }
+}
+
+//export default Beverage;
+
+//CondimentDecorator.js(调味品)
+//import Beverage from './Beverage';
+
+class CondimentDecorator extends Beverage {}
+
+//export default CondimentDecorator;
+
+//Espresso.js(浓咖啡)
+//import Beverage from './Beverage';
+
+class Espresso extends Beverage {
+    cost() {
+        return 1.99;
+    }
+}
+
+//export default Espresso;
+
+//Mocha.js(摩卡)
+//import CondimentDecorator from './CondimentDecorator';
+
+class Mocha extends CondimentDecorator {
+    constructor(beverage) {
+        super();
+        this.beverage = beverage;
+    }
+
+    getDescription() {
+        return this.beverage.getDescription() + ", Mocha";
+    }
+
+    cost() {
+        return 0.20 + this.beverage.cost();
+    }
+}
+
+//export default Mocha;
+
+//Whip.js
+//import CondimentDecorator from './CondimentDecorator';
+
+class Whip extends CondimentDecorator { //奶油泡沫
+    constructor(beverage) {
+        super();
+        this.beverage = beverage;
+    }
+
+    getDescription() {
+        return this.beverage.getDescription() + ', Whip';
+    }
+
+    cost() {
+        return 0.60 + this.beverage.cost();
+    }
+}
+
+//export default Whip;
+
+//main.js
+// import Espresso from './Espresso';
+// import Mocha from './Mocha';
+// import Whip from './Whip';
+
+let oEspressoWithMochaAndWhip = new Espresso();
+oEspressoWithMochaAndWhip = new Mocha(oEspressoWithMochaAndWhip);
+oEspressoWithMochaAndWhip = new Whip(oEspressoWithMochaAndWhip);
+
+console.log(oEspressoWithMochaAndWhip.cost());
+//运行结果：
+//2.79
+
+
 /*************************************
- * 2,Chaining（方法链模式）
- *@bref：。
- * 。
- * 应用如：等。打开脑洞，自由发散。
+ * 6,Facade（外观模式）
+ *@bref：隐藏系统的复杂性，并向客户端提供了一个客户端可以访问系统的接口。这种类型的设计模式属于结构型模式，它向现有的系统添加一个接口，来隐藏系统的复杂性。
+ * 现实中，如操作系统，电脑，手电筒等设备，我们只需按开关就行，不需要关心开关机细节。
+ * 示例，展示的是一个家庭剧院，包括灯光，放映机，幕布，电影等过程，只需要调用一个方法，一切按流程自动化完成。
+ * 应用如：组件的封装，第三方插件开发，自动化测试等。打开脑洞，自由发散。
+ * 一个技术问题：多继承的实现。如class Amplifier extends Switchable(Object) {}，如果Switchable写成当个文件，
+ * 可以使用class Amplifier extends Switchable(null) {}，如果如下面只能使用Switchable(Object)。否则会报错：
+ * function is not function。
  *************************************/
+
+
+//Screen.js
+class Screen { //屏幕或显示器
+    down() {
+        console.log("The screen is down!");
+    }
+
+    up() {
+        console.log("The screen is up!");
+    }
+}
+
+//export default Screen;
+
+//Switchable.js
+
+const Switchable = Sup => class extends Sup {
+    on() {
+        throw new Error('This method should be overwritten!');
+    }
+
+    off() {
+        throw new Error('This method should be overwritten!');
+    }
+};
+
+//export default Switchable;
+
+//Playable.js
+const Playable = Sup => class extends Sup {
+    eject() { //强制关机
+        throw new Error('This method should be overwritten!');
+    }
+
+    play() {
+        throw new Error('This method should be overwritten!');
+    }
+
+    stop() {
+        throw new Error('This method should be overwritten!');
+    }
+};
+
+//export default Playable;
+
+//Amplifier.js
+//import Switchable from './Switchable';
+
+class Amplifier extends Switchable(Object) { //扩音器, 注：Object而不用Null，用Null会报错
+    constructor() {
+        super();
+        this.volume = 0;
+        this.dvdPlayer = null;
+        this.cdPlayer = null;
+        this.tuner = null;
+        this.surroundSound = false; //环绕音
+        this.stereoSound = false; //立体声
+    }
+
+    on() {
+        console.log("Amplifier is on!");
+    }
+
+    off() {
+        console.log("Amplifier is off!");
+    }
+
+    setVolume(volume) {
+        this.volume = volume;
+        console.log("Volume change to " + volume);
+    }
+
+    setDvdPlayer(dvdPlayer) {
+        this.dvdPlayer = dvdPlayer;
+        console.log("Plugged DVD Player to Amplifier!");
+    }
+
+    setCdPlayer(cdPlayer) {
+        this.cdPlayer = cdPlayer;
+        console.log("Plugged Cd Player to Amplifier!");
+    }
+
+    setTuner(tuner) {
+        this.tuner = tuner;
+        console.log("Plugged on Tuner to Amplifier!");
+    }
+
+    setSurroundSound() {
+        this.surroundSound = true;
+        console.log("Surround Mode is active!");
+    }
+
+    setStereoSound() {
+        this.stereoSound = true;
+        console.log("Stereo Mode is active!");
+    }
+}
+
+//export default Amplifier;
+
+//CdPlayer.js
+// import Switchable from './Switchable';
+// import Playable from './Playable';
+
+class CdPlayer extends Switchable(Playable(Object)) { //实现了多继承，注：Object而不用Null，用Null会报错
+    on() {
+        console.log("CdPlayer is on!");
+    }
+
+    off() {
+        console.log("CdPlayer is off!");
+    }
+
+    eject() {
+        console.log("Eject Cd!");
+    }
+
+    play(cd) {
+        console.log("Playing " + cd.sName);
+    }
+
+    stop() {
+        console.log("Stop CdPlayer!");
+    }
+}
+
+//export default CdPlayer;
+
+//DvdPlayer.js
+// import Switchable from './Switchable';
+// import Playable from './Playable';
+
+class DvdPlayer extends Switchable(Playable(Object)) {
+    on() {
+        console.log("DvdPlayer is on!");
+    }
+
+    off() {
+        console.log("DvdPlayer is off!");
+    }
+
+    eject() {
+        console.log("Eject Dvd!");
+    }
+
+    play(movie) {
+        console.log("Playing " + movie.name);
+    }
+
+    stop() {
+        console.log("Stop DvdPlayer!");
+    }
+}
+
+//export default DvdPlayer;
+
+//PopcornPopper.js
+//import Switchable from './Switchable';
+
+class PopcornPopper extends Switchable(Object) { //爆米花机
+    on() {
+        console.log("PopcornPopper is on!");
+    }
+
+    off() {
+        console.log("PopcornPopper is off!");
+    }
+
+    pop() {
+        console.log("Yum!Yum!"); //美味，美味！
+    }
+}
+
+//export default PopcornPopper;
+
+//Projector.js
+//import Switchable from './Switchable';
+
+class Projector extends Switchable(Object) { //放映机
+    constructor() {
+        super();
+        this.wideScreenMode = false;
+    }
+
+    on() {
+        console.log("Projector is on!");
+    }
+
+    off() {
+        console.log("Projector is off!");
+    }
+
+    setWideScreenMode() {
+        this.wideScreenMode = true;
+        console.log("Projector now is on wide screen mode!");
+    }
+}
+
+//export default Projector;
+
+
+
+
+//TheaterLights.js
+//import Switchable from './Switchable';
+
+class TheaterLights extends Switchable(Object) { //剧场的灯光
+    on() {
+        console.log("The lights are on!");
+    }
+
+    off() {
+        console.log("The lights are off!");
+    }
+}
+
+
+//export default TheaterLights;
+
+//Tuner.js
+//import Switchable from './Switchable';
+
+class Tuner extends Switchable(Object) { //电视频道
+    constructor() {
+        this.amplifier = null;
+        this.frequency = 0;
+    }
+
+    on() {
+        console.log("Tuner is on!");
+    }
+
+    off() {
+        console.log("Tuner is off!");
+    }
+
+    setAm() {
+        console.log("Tuner AM!");
+    }
+
+    setFm() {
+        console.log("Tuner FM!");
+    }
+
+    setFrequency(frequency) {
+        this.frequency = frequency;
+        console.log("Tuner frequency changed to " + frequency);
+    }
+}
+
+//export default Tuner;
+
+
+//HomeTheaterFacade.js
+class HomeTheaterFacade { //家庭剧院外设
+    constructor({
+        amplifier = null,
+        tuner = null,
+        dvdPlayer = null,
+        cdPlayer = null,
+        projector = null,
+        theaterLights = null,
+        screen = null,
+        popcornPopper = null
+    }) {
+        this.amplifier = amplifier;
+        this.tuner = tuner;
+        this.dvdPlayer = dvdPlayer;
+        this.cdPlayer = cdPlayer;
+        this.projector = projector;
+        this.theaterLights = theaterLights;
+        this.screen = screen;
+        this.popcornPopper = popcornPopper;
+    }
+
+    watchMovie(movie) {
+        console.log('Get ready to watch a movie...');
+
+        this.popcornPopper.on();
+        this.popcornPopper.pop();
+
+        this.theaterLights.off();
+
+        this.screen.down();
+
+        this.projector.on();
+        this.projector.setWideScreenMode();
+
+        this.amplifier.on();
+        this.amplifier.setDvdPlayer(this.dvdPlayer);
+        this.amplifier.setSurroundSound();
+        this.amplifier.setVolume(5);
+
+        this.dvdPlayer.on();
+        this.dvdPlayer.play(movie);
+    }
+
+    endMovie() {
+        console.log("Shutting movie theater down...");
+        this.popcornPopper.off();
+
+        this.theaterLights.on();
+
+        this.screen.up();
+
+        this.projector.off();
+
+        this.amplifier.off();
+
+        this.dvdPlayer.stop();
+        this.dvdPlayer.eject();
+        this.dvdPlayer.off();
+    }
+
+    listenToCd(cd) {
+        console.log("Start listening your music...");
+
+        this.amplifier.on();
+        this.amplifier.setCdPlayer(this.cdPlayer);
+        this.amplifier.setStereoSound();
+        this.amplifier.setVolume(5);
+
+        this.cdPlayer.on();
+        this.cdPlayer.play(cd);
+    }
+
+    endCd() {
+        console.log("End listening your music or the Cd has finished!");
+
+        this.amplifier.off();
+
+        this.cdPlayer.stop();
+        this.cdPlayer.eject();
+        this.cdPlayer.off();
+    }
+
+    listenToRadio() {
+        console.log("Start listening your favorite radio station...");
+
+        this.amplifier.on();
+        this.amplifier.setTuner(this.tuner);
+        this.amplifier.setStereoSound();
+        this.amplifier.setVolume(5);
+
+        this.tuner.on();
+        this.tuner.setFm();
+        this.tuner.setFrequency(90.9);
+    }
+
+    endRadio() {
+        console.log("End listening your favorite radio station...");
+
+        this.amplifier.off();
+
+        this.tuner.off();
+    }
+}
+
+//export default HomeTheaterFacade;
+
+//Movie.js
+class Movie { //电影
+    constructor(name = '', minutes = 0, director = '', actors = [], description = '') {
+        this.name = name;
+        this.minutes = minutes;
+        this.director = director;
+        this.actors = actors;
+        this.description = description;
+    }
+
+    setName(name) {
+        this.name = name;
+    }
+
+    setMinutes(minutes) {
+        this.minutes = minutes;
+    }
+
+    setDirector(director) {
+        this.director = director;
+    }
+
+    setActors(actors) {
+        this.actors = actors;
+    }
+
+    setDescription(description) {
+        this.description = description;
+    }
+}
+
+//export default Movie;
+
+//Nikita.js
+//import Movie from './Movie';
+
+class Nikita extends Movie { //《尼基塔》电视连续剧
+    constructor() {
+        super('Nikita, hard to kill!',
+            120,
+            'Steven Spielberg', ['Brad Pitt'],
+            'Bloody!'
+        );
+    }
+}
+
+//export default Nikita;
+
+//main.js
+// import HomeTheaterFacade from './HomeTheaterFacade';
+// import Amplifier from './elements/Amplifier';
+// import DvdPlayer from './elements/DvdPlayer';
+// import CdPlayer from './elements/CdPlayer';
+// import Projector from './elements/Projector';
+// import TheaterLights from './elements/TheaterLights';
+// import Screen from './elements/Screen';
+// import PopcornPopper from './elements/PopcornPopper';
+// import Nikita from './Nikita';
+
+var oHomeTheaterFacade = new HomeTheaterFacade({
+    amplifier: new Amplifier(),
+    dvdPlayer: new DvdPlayer(),
+    cdPlayer: new CdPlayer(),
+    projector: new Projector(),
+    theaterLights: new TheaterLights(),
+    screen: new Screen(),
+    popcornPopper: new PopcornPopper()
+});
+oHomeTheaterFacade.watchMovie(new Nikita());
+oHomeTheaterFacade.endMovie();
+//运行结果
+/**-----------------------start------------------------------
+Get ready to watch a movie...
+VM7709:162 PopcornPopper is on!
+VM7709:170 Yum!Yum!
+VM7709:213 The lights are off!
+VM7709:5 The screen is down!
+VM7709:186 Projector is on!
+VM7709:195 Projector now is on wide screen mode!
+VM7709:61 Amplifier is on!
+VM7709:75 Plugged DVD Player to Amplifier!
+VM7709:90 Surround Mode is active!
+VM7709:70 Volume change to 5
+VM7709:135 DvdPlayer is on!
+VM7709:147 Playing Nikita, hard to kill!
+VM7709:299 Shutting movie theater down...
+VM7709:166 PopcornPopper is off!
+VM7709:209 The lights are on!
+VM7709:9 The screen is up!
+VM7709:190 Projector is off!
+VM7709:65 Amplifier is off!
+VM7709:151 Stop DvdPlayer!
+VM7709:143 Eject Dvd!
+VM7709:139 DvdPlayer is off!
+
+--中文
+- 准备看电影...
+- PopcornPopper开启！
+- 好吃！
+- 灯灭了！
+- 屏幕已关闭！
+- 投影机在上！
+- 投影仪现在是在宽屏幕模式！
+- 放映机开了！
+- 将DVD播放机插入放映机！
+- 环绕模式激活！
+- 音量更改为5
+- DvdPlayer在上！
+- 看《尼基塔》，艰苦的拼杀，搏斗！
+- 关闭电影院...
+- PopcornPopper关闭！
+- 灯亮了！
+- 屏幕起来了！
+- 投影机关闭！
+- 放大器关闭！
+- 停止DvdPlayer！
+- 弹出Dvd！
+- DvdPlayer已关闭！
+
+---------------------------end-----------------------------*/
+
 /*************************************
- * 2,Chaining（方法链模式）
+ * 7,Factory（工厂模式）
+ *@bref：定义一个创建对象的接口，让其子类自己决定实例化哪一个工厂类，工厂模式使其创建过程延迟到子类进行。
+ * 主要解决接口选择的问题
+ * 示例是一个披萨工厂。
+ * 应用如：等。打开脑洞，自由发散。
+ *************************************/
+
+
+
+//PizzaStore.js
+class PizzaStore {
+    createPizza() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    orderPizza(type) {
+        let pizza = this.createPizza(type);
+
+        pizza.prepare();
+        pizza.bake();
+        pizza.cut();
+        pizza.box();
+    }
+}
+
+//export default PizzaStore;
+
+
+//PizzaIngredientFactory.js
+class PizzaIngredientFactory { //披萨原料工厂
+    createDough() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    createSauce() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    createCheese() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    createCheese() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    createVeggies() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    createPepperoni() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    createClam() {
+        throw new Error("This method must be overwritten!");
+    }
+}
+
+//export default PizzaIngredientFactory;
+
+//FreshClams.js
+class FreshClams {}
+
+//export default FreshClams;
+
+//Garlic.js
+class Garlic {} //蒜头
+
+//export default Garlic;
+
+//MarinaraSauce.js
+class MarinaraSauce {}
+
+//export default MarinaraSauce;
+
+//Mushroom.js
+class Mushroom {} //蘑菇
+
+//export default Mushroom;
+
+//Onion.js
+class Onion {}
+
+//export default Onion;
+
+//RedPepper.js
+class RedPepper {}
+
+//export default RedPepper;
+
+//ReggianoCheese.js
+class ReggianoCheese {}
+
+//export default ReggianoCheese;
+
+//SlicedPepperoni.js
+class SlicedPepperoni {}
+
+//export default SlicedPepperoni;
+
+//ThinCrustDough.js
+class ThinCrustDough {}
+
+//export default ThinCrustDough;
+
+
+//NewYorkPizzaIngredientFactory.js
+// import PizzaIngredientFactory from '../PizzaIngredientFactory';
+// import ThinCrustDough from '../ingredients/ThinCrustDough';
+// import MarinaraSauce from '../ingredients/MarinaraSauce';
+// import ReggianoCheese from '../ingredients/ReggianoCheese';
+// import Garlic from '../ingredients/Garlic';
+// import Mushroom from '../ingredients/Mushroom';
+// import RedPepper from '../ingredients/RedPepper';
+
+class NewYorkPizzaIngredientFactory extends PizzaIngredientFactory {
+    createDough() {
+        return new ThinCrustDough();
+    }
+
+    createSauce() {
+        return new MarinaraSauce();
+    }
+
+    createCheese() {
+        return new ReggianoCheese();
+    }
+
+    createVeggies() {
+        return [new Garlic(), new Mushroom(), new RedPepper()];
+    }
+
+    createPepperoni() {}
+
+    createClam() {}
+}
+
+//export default NewYorkPizzaIngredientFactory;
+
+//Pizza.js
+class Pizza {
+    constructor({ name = '', dough = null, sauce = null, veggies = [], cheese = null, pepperoni = null, clams = null }) {
+        this.name = name;
+        this.dough = dough; //生面团
+        this.sauce = sauce; //酱汁; 调味汁
+        this.veggies = veggies; //蔬菜
+        this.cheese = cheese; //奶酪
+        this.pepperoni = pepperoni; //香肠
+        this.clams = clams; //蛤; 蚌
+    }
+
+    prepare() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    bake() {
+        console.log("Bake for 25 minutes at 350");
+    }
+
+    cut() {
+        console.log("Cutting the pizza into diagonal slices");
+    }
+
+    box() {
+        console.log("Place pizza in official PizzaStore box");
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    setName(name) {
+        this.name = name;
+    }
+}
+
+//export default Pizza;
+
+
+//CheesePizza.js
+//import Pizza from '../Pizza';
+
+class CheesePizza extends Pizza {
+    constructor(style, ingredientFactory) {
+        super({
+            name: style + ' Cheese Pizza'
+        });
+        console.log(this.name);
+        this.ingredientFactory = ingredientFactory;
+    }
+
+    prepare() {
+        let ingredientFactory = this.ingredientFactory;
+        console.log("Preparing " + this.name);
+        this.dough = ingredientFactory.createDough();
+        this.sauce = ingredientFactory.createSauce();
+        this.cheese = ingredientFactory.createCheese();
+    }
+}
+
+//export default CheesePizza;
+
+
+//ClamPizza.js
+//import Pizza from '../Pizza';
+
+class ClamPizza extends Pizza {
+    constructor(style, ingredientFactory) {
+        super({
+            name: style + ' Clams Pizza'
+        });
+        this.ingredientFactory = ingredientFactory;
+    }
+
+    prepare() {
+        let ingredientFactory = this.ingredientFactory;
+        console.log("Preparing " + this.name);
+        this.dough = ingredientFactory.createDough();
+        this.sauce = ingredientFactory.createSauce();
+        this.cheese = ingredientFactory.createCheese();
+        this.clams = ingredientFactory.createClam();
+    }
+}
+
+//export default ClamPizza;
+
+
+//PepperoniPizza.js
+//import Pizza from '../Pizza';
+
+class PepperoniPizza extends Pizza {
+    constructor(style, ingredientFactory) {
+        super({
+            name: style + ' Pepperoni Pizza'
+        });
+        this.ingredientFactory = ingredientFactory;
+    }
+
+    prepare() {
+        let ingredientFactory = this.ingredientFactory;
+        console.log("Preparing " + this.name);
+        this.dough = ingredientFactory.createDough();
+        this.sauce = ingredientFactory.createSauce();
+        this.cheese = ingredientFactory.createCheese();
+    }
+}
+
+//export default PepperoniPizza;
+
+
+//VeggiePizza.js
+//import Pizza from '../Pizza';
+
+class VeggiePizza extends Pizza {
+    constructor(style, ingredientFactory) {
+        super({
+            name: style + ' Veggie Pizza'
+        });
+        this.ingredientFactory = ingredientFactory;
+    }
+
+    prepare() {
+        let ingredientFactory = this.ingredientFactory;
+        console.log("Preparing " + this.name);
+        this.dough = ingredientFactory.createDough();
+        this.sauce = ingredientFactory.createSauce();
+        this.cheese = ingredientFactory.createCheese();
+    }
+}
+
+//export default VeggiePizza;
+
+
+//NewYorkPizzaStore.js
+// import PizzaStore from '../../../common/PizzaStore';
+// import NewYorkPizzaIngredientFactory from '../ingredientFactory/NewYorkPizzaIngredientFactory';
+// import CheesePizza from '../pizzas/CheesePizza';
+// import VeggiePizza from '../pizzas/VeggiePizza';
+// import ClamPizza from '../pizzas/ClamPizza';
+// import PepperoniPizza from '../pizzas/PepperoniPizza';
+
+const PIZZAS = {
+    cheese: CheesePizza, //奶酪
+    veggie: VeggiePizza, //素食
+    clam: ClamPizza, //蚌，蛤
+    pepperoni: PepperoniPizza //意大利辣香肠
+};
+
+class NewYorkPizzaStore extends PizzaStore {
+    createPizza(type) {
+        let ingredientFactory = new NewYorkPizzaIngredientFactory();
+        let PizzaConstructor = PIZZAS[type];
+        let pizza = null;
+        if (PizzaConstructor) {
+            pizza = new PizzaConstructor('New York Style', ingredientFactory);
+        }
+        return pizza;
+    }
+}
+
+//export default NewYorkPizzaStore;
+
+
+//main.js
+//import NewYorkPizzaStore from './stores/NewYorkPizzaStore';
+
+var oPizzaStore = new NewYorkPizzaStore();
+oPizzaStore.orderPizza("cheese");
+
+//运行结果
+/**-----------------------start------------------------------
+New York Style Cheese Pizza
+VM13946:187 Preparing New York Style Cheese Pizza
+VM13946:150 Bake for 25 minutes at 350
+VM13946:154 Cutting the pizza into diagonal slices
+VM13946:158 Place pizza in official PizzaStore box
+
+
+---------------------------end-----------------------------*/
+
+
+/*************************************
+ * 7,Factory（工厂模式）
  *@bref：。
  * 。
  * 应用如：等。打开脑洞，自由发散。
  *************************************/
+
+//运行结果
+/**-----------------------start------------------------------
+
+
+
+---------------------------end-----------------------------*/
+
+
+
+/*************************************
+ * 7,Factory（工厂模式）
+ *@bref：。
+ * 。
+ * 应用如：等。打开脑洞，自由发散。
+ *************************************/
+
+//运行结果
+/**-----------------------start------------------------------
+
+
+
+---------------------------end-----------------------------*/
