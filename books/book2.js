@@ -8,55 +8,55 @@ function email() {}
 
 function phone() {}
 //写法二：
-var email = function () {};
-var phone = function () {};
+var email = function() {};
+var phone = function() {};
 //2, 对象的写法及区别
 //写法一：
-var CheckObject = function () {};
-CheckObject.email = function () {
+var CheckObject = function() {};
+CheckObject.email = function() {
     console.log("email...");
 };
-CheckObject.phone = function () {
+CheckObject.phone = function() {
     console.log("phone...");
 };
 //测试
 CheckObject.email();
 //写法二：（ 真假对象）
-var CheckObject = function () {
+var CheckObject = function() {
     return {
-        email: function () {
+        email: function() {
             console.log("email...");
         },
-        phone: function () {
+        phone: function() {
             console.log("phone...");
         }
     };
 };
 //写法三：
-var CheckObject = function () {
-    this.email = function () {
+var CheckObject = function() {
+    this.email = function() {
         console.log("email...");
     };
-    this.phone = function () {
+    this.phone = function() {
         console.log("phone...");
     };
 };
 //写法四：
-var CheckObject = function () {};
-CheckObject.prototype.email = function () {
+var CheckObject = function() {};
+CheckObject.prototype.email = function() {
     console.log("email...");
 };
-CheckObject.prototype.phone = function () {
+CheckObject.prototype.phone = function() {
     console.log("phone...");
 };
 //写法五：
-var CheckObject = function () {};
+var CheckObject = function() {};
 CheckObject.prototype = {
     Constructor: CheckObject,
-    email: function () {
+    email: function() {
         console.log("email...");
     },
-    phone: function () {
+    phone: function() {
         console.log("phone...");
     }
 };
@@ -64,13 +64,13 @@ CheckObject.prototype = {
 var a = CheckObject();
 a.email();
 //写法六： 链式调用
-var CheckObject = function () {};
+var CheckObject = function() {};
 CheckObject.prototype = {
     Constructor: CheckObject,
-    email: function () {
+    email: function() {
         console.log("email...");
     },
-    phone: function () {
+    phone: function() {
         console.log("phone...");
     }
 };
@@ -79,20 +79,20 @@ var a = CheckObject();
 a.email().phone();
 //3,函数方法拓展
 //方式一 :
-Function.prototype.addMethod = function (name, fn) {
+Function.prototype.addMethod = function(name, fn) {
     this[name] = fn;
     return this;
 };
 //方式二 :
-Function.prototype.addMethod = function (name, fn) {
+Function.prototype.addMethod = function(name, fn) {
     this.prototype[name] = fn;
 };
 //示例
-var methods = function () {};
-methods.addMethod('email', function () {
+var methods = function() {};
+methods.addMethod('email', function() {
     console.log("email...");
     return this;
-}).addMethod('phone', function () {
+}).addMethod('phone', function() {
     console.log("phone...");
     return this;
 });
@@ -103,13 +103,13 @@ var m = new methods();
 m.email().phone();
 //课后练习：
 //1 ， 真假对象实现链式调用
-var CheckObject = function () {
+var CheckObject = function() {
     return {
-        email: function () {
+        email: function() {
             console.log("email...");
             return this;
         },
-        phone: function () {
+        phone: function() {
             console.log("phone...");
             return this;
         }
@@ -118,18 +118,18 @@ var CheckObject = function () {
 var co = CheckObject();
 co.email().phone();
 //2 ， 定义一个可以为函数添加多个方法的addMethod方法
-Function.prototype.addMethod = function (obj) {
+Function.prototype.addMethod = function(obj) {
     for (var item in obj) {
         this.prototype[item] = obj[item];
     }
 };
-var Methods = function () {};
+var Methods = function() {};
 Methods.addMethod({
-    'email': function () {
+    'email': function() {
         console.log("email...");
         return this;
     },
-    'phone': function () {
+    'phone': function() {
         console.log("phone...");
         return this;
     }
@@ -137,19 +137,19 @@ Methods.addMethod({
 var m = new Methods();
 m.email().phone();
 //3 ， 定义一个既可以为函数原型也可以为自身添加方法的addMethod方法
-Function.prototype.addMethod = function (obj) {
+Function.prototype.addMethod = function(obj) {
     for (var item in obj) {
         this[item] = obj[item];
         this.prototype[item] = obj[item];
     }
 };
-var Methods = function () {};
+var Methods = function() {};
 Methods.addMethod({
-    'email': function () {
+    'email': function() {
         console.log("email...");
         return this;
     },
-    'phone': function () {
+    'phone': function() {
         console.log("phone...");
         return this;
     }
@@ -176,23 +176,23 @@ m.email().phone();
  注： 严格上只区分公有和私有。 其他命名是根据他们的特殊用途命名的。 并无严格的划分。
  **/
 //写法一：
-var Book = function (id, name, price) {
+var Book = function(id, name, price) {
     var num = 1; //私有属性
     function checkId() {
         //私有方法
     };
     this.id = id; //对象公有属性
-    this.copy = function () {}; //对象公有方法
-    this.setName = function (name) {}; //构造器
-    this.setPrice = function (price) {}; //构造器
-    this.getName = function () {}; //特权方法
-    this.getPrice = function () {}; //特权方法
+    this.copy = function() {}; //对象公有方法
+    this.setName = function(name) {}; //构造器
+    this.setPrice = function(price) {}; //构造器
+    this.getName = function() {}; //特权方法
+    this.getPrice = function() {}; //特权方法
 };
 Book.isChinese = true; //静态属性，对象不能访问
-Book.resetTime = function () {}; //静态方法，对象不能访问
-Book.prototype = function () {
+Book.resetTime = function() {}; //静态方法，对象不能访问
+Book.prototype = function() {
         isJsBook: true, //共有属性
-        display: function () { //共有方法
+        display: function() { //共有方法
         }
     }
     //测试
@@ -203,7 +203,7 @@ console.log(book.id); //11
 console.log(book.isChinese); //undefined
 console.log(Book.isChinese); //true
 //写法二： 闭包实现（ 简言之： 函数里有函数） 特点 : 可以使用被调用函数内的变量和方法并保留。
-var Book = (function (id, name, price) {
+var Book = (function(id, name, price) {
     var bookNum = 0; //静态私有属性
     function checkBook(name) {
         //静态私有方法
@@ -216,11 +216,11 @@ var Book = (function (id, name, price) {
             //私有方法
         };
         this.id = id; //对象公有属性
-        this.copy = function () {}; //对象公有方法
-        this.setName = function (name) {}; //构造器
-        this.setPrice = function (price) {}; //构造器
-        this.getName = function () {}; //特权方法
-        this.getPrice = function () {}; //特权方法
+        this.copy = function() {}; //对象公有方法
+        this.setName = function(name) {}; //构造器
+        this.setPrice = function(price) {}; //构造器
+        this.getName = function() {}; //特权方法
+        this.getPrice = function() {}; //特权方法
         bookNum++;
         if (bookNum > 100) {
             throw new Error('我们仅出版100本');
@@ -228,14 +228,14 @@ var Book = (function (id, name, price) {
     }
     _book.prototype = {
             isJsBook: true, //静态共有属性
-            display: function () { //静态共有方法
+            display: function() { //静态共有方法
             }
         }
         //返回类
     return _book;
 })();
 //类使用的安全模式:
-var Book = function (title, time, type) {
+var Book = function(title, time, type) {
     if (this instanceof Book) {
         this.title = title;
         this.time = time;
@@ -259,7 +259,7 @@ console.log(window.title); //undefined
 function SuperClass() {
     this.superValue = true;
 }
-SuperClass.prototype.getSuperValue = function () {
+SuperClass.prototype.getSuperValue = function() {
     return this.superValue;
 }
 
@@ -267,7 +267,7 @@ function SubClass() {
     this.subValue = false;
 }
 SubClass.prototype = new SuperClass(); //实现继承
-SubClass.prototype.getSubValue = function () {
+SubClass.prototype.getSubValue = function() {
         return this.subValue;
     }
     //测试
@@ -290,7 +290,7 @@ function SuperClass(id) {
     this.id = id; //值类型共有属性
     this.books = ['javascript', 'html', 'css']; //引用类型共有属性
 }
-SuperClass.prototype.showBooks = function () {
+SuperClass.prototype.showBooks = function() {
     console.log(this.books);
 }
 
@@ -311,7 +311,7 @@ function SuperClass(name) {
     this.name = name; //值类型共有属性
     this.books = ['javascript', 'html', 'css']; //引用类型共有属性
 }
-SuperClass.prototype.getName = function () {
+SuperClass.prototype.getName = function() {
     console.log(this.name);
 }
 
@@ -320,10 +320,10 @@ function SubClass(name, time) {
     this.time = time; //子类新增共用属性
 }
 SubClass.prototype = new SuperClass(); //类式继承
-SubClass.prototype.getTime = function () {
-        return this.time;
-    }
-    //测试
+SubClass.prototype.getTime = function() {
+    return this.time;
+};
+//测试
 var book1 = new SubClass('jsbook', 2016);
 var book2 = new SubClass('cssbook', 2017);
 book1.books.push('css3');
@@ -349,7 +349,7 @@ var book = {
 
 function creatBook(obj) {
     var o = inheritObject(obj);
-    o.getName = function () { //添加新方法
+    o.getName = function() { //添加新方法
         console.log(name)
     }
     return o;
@@ -367,7 +367,7 @@ function SuperClass(name) {
     this.name = name;
     this.colors = ['red', 'blue', 'green'];
 }
-SuperClass.prototype.getName = function () {
+SuperClass.prototype.getName = function() {
     console.log(this.name);
 }
 
@@ -376,7 +376,7 @@ function SubClass(name, time) {
     this.time = time;
 }
 inheritPrototype(subClass, superClass); //实现继承
-SubClass.prototype.getTime = function () {
+SubClass.prototype.getTime = function() {
         return this.time;
     }
     //测试
@@ -391,14 +391,14 @@ console.log(book2.getName());
 console.log(book2.getTime());
 //---- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -;
 //2.7 多继承： 复制的原理
-Object.prototype.extend = function (target, source) {
+Object.prototype.extend = function(target, source) {
     //单继承
     for (var porperty in source) {
         target[porperty] = source[porperty];
     }
     return target;
 }
-Object.prototype.mix = function () {
+Object.prototype.mix = function() {
         //多继承
         var i = 1,
             len = arguments.length,
@@ -432,12 +432,12 @@ console.log(book);
 function add() {
     var len = arguments.length;
     switch (len) {
-    case 0:
-        return 10;
-    case 1:
-        return 10 + arguments[0];
-    default:
-        return 0;
+        case 0:
+            return 10;
+        case 1:
+            return 10 + arguments[0];
+        default:
+            return 0;
     }
 }
 //测试
@@ -447,7 +447,7 @@ console.log(add(1, 2));
 //---- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
 //课后练习
 //1 ， 深复制的实现
-var deepCopy = function (source) {
+var deepCopy = function(source) {
     var result = {};
     for (var key in source) {
         //result[key] = typeof source[key] === 'object' ? deepCopy(source[key]) : source[key];
@@ -481,10 +481,10 @@ function factory(name, bref, type) {
     o.name = name;
     o.bref = bref;
     o.type = type;
-    o.getName = function () {
+    o.getName = function() {
         console.log(this.name);
     }
-    o.show = function () {
+    o.show = function() {
         console.log(this.bref);
     }
     return o;
@@ -506,7 +506,7 @@ var prompt = factory('promptname', 'prompt win', 'prompt');
  1 ， 工厂方法模式 : 特点：(1) : 原型式类模式。 利用原型的实例共享特性， 无限扩展， 适应不断增长的需要;
  (2) : 原型不断修改， 越来越大。
  **/
-var Factory = function (type, content) {
+var Factory = function(type, content) {
     if (this instanceof Factory) {
         var s = new this[type](content);
         return s;
@@ -515,29 +515,27 @@ var Factory = function (type, content) {
     }
 }
 Factory.prototype = {
-        java: function (content) {
+        java: function(content) {
             console.log('java...', content);
         },
-        php: function (content) {
+        php: function(content) {
             console.log('php...', content);
         },
-        javascript: function (content) {
+        javascript: function(content) {
             console.log('javascript...', content);
         }
     }
     //测试：
-var data = [
-    {
-        type: 'java',
-        content: 'hello java'
-  }, {
-        type: 'php',
-        content: 'hello php'
-  }, {
-        type: 'javascript',
-        content: 'hello javascript'
-  }
-];
+var data = [{
+    type: 'java',
+    content: 'hello java'
+}, {
+    type: 'php',
+    content: 'hello php'
+}, {
+    type: 'javascript',
+    content: 'hello javascript'
+}];
 for (var i = 0; i < data.length; i++) {
     var item = data[i];
     Factory(item.type, item.content);
@@ -551,7 +549,7 @@ for (var i = 0; i < data.length; i++) {
  (2)原理类似[寄生组合式继承],
  这种方式类似于java的抽象类实现。
  **/
-var VehicleFactory = function (subType, superType) {
+var VehicleFactory = function(subType, superType) {
     if (typeof VehicleFactory[superType] === 'function') {
         function F() {};
         F.prototype = new VehicleFactory[superType](); //继承了父类的构造函数和原型
@@ -563,41 +561,41 @@ var VehicleFactory = function (subType, superType) {
         throw new Error('为创建该抽象类');
     }
 }
-VehicleFactory.Car = function () {
+VehicleFactory.Car = function() {
     this.type = 'car';
 };
 //小轿车抽象类
 VehicleFactory.Car.prototype = {
-        getPrice: function () {
+        getPrice: function() {
             return new Error('抽象方法不能调用');
         },
-        getSpeed: function () {
+        getSpeed: function() {
             return new Error('抽象方法不能调用');
         }
     }
     //公交车抽象类
-VehicleFactory.Bus = function () {
+VehicleFactory.Bus = function() {
     this.type = 'bus';
 };
 //公交车抽象类
 VehicleFactory.Bus.prototype = {
-        getPrice: function () {
+        getPrice: function() {
             return new Error('抽象方法不能调用');
         },
-        getPassengerNum: function () {
+        getPassengerNum: function() {
             return new Error('抽象方法不能调用');
         }
     }
     //小轿车子类
-var BMW = function (price, speed) {
+var BMW = function(price, speed) {
     this.price = price;
     this.speed = speed;
 }
 VehicleFactory(BMW, 'Car');
-BMW.prototype.getPrice = function () {
+BMW.prototype.getPrice = function() {
     return this.price;
 }
-BMW.prototype.speed = function () {
+BMW.prototype.speed = function() {
     return this.speed;
 }
 var bmw = new BMW(100, 200);
@@ -610,22 +608,22 @@ console.log(bmw.type);
  1 ， 建造者模式
  特点 : (1)多个对象组合或组装为一个完整的实体。
  **/
-var Human = function (param) {
+var Human = function(param) {
     this.skill = param && param.skill || '保密'; //技能
     this.hobby = param && param.hobby || '保密'; //兴趣爱好
 }
 Human.prototype = {
-    getSkill: function () {
+    getSkill: function() {
         return this.skill;
     },
-    getHobby: function () {
+    getHobby: function() {
         return this.hobby;
     }
 }
-var Named = function (name) {
+var Named = function(name) {
     var that = this;
     //计算的属性用函数初始化
-    (function (name, that) {
+    (function(name, that) {
         that.wholeName = name;
         if (name.indexOf(' ') > -1) {
             that.firstName = name.slice(0, name.indexOf(' '));
@@ -633,34 +631,34 @@ var Named = function (name) {
         }
     })(name, that);
 }
-var Work = function (work) {
+var Work = function(work) {
     var that = this;
-    (function (work, that) {
+    (function(work, that) {
         switch (work) {
-        case 'code':
-            that.work = '工程师';
-            that.workDesc = 'everyday codeing';
-            break;
-        case 'ui':
-        case 'ue':
-            that.work = '设计师';
-            that.workDesc = 'everyday copying';
-            break;
-        default:
-            that.work = work;
-            that.workDesc = 'everyday studying';
-            break;
+            case 'code':
+                that.work = '工程师';
+                that.workDesc = 'everyday codeing';
+                break;
+            case 'ui':
+            case 'ue':
+                that.work = '设计师';
+                that.workDesc = 'everyday copying';
+                break;
+            default:
+                that.work = work;
+                that.workDesc = 'everyday studying';
+                break;
         };
     })(work, that);
 };
-Work.prototype.chageWork = function (work) {
+Work.prototype.chageWork = function(work) {
     this.work = work;
 }
-Work.prototype.chageDesc = function (setence) {
+Work.prototype.chageDesc = function(setence) {
         this.workDesc = setence;
     }
     //创建应聘者
-var Person = function (name, work) {
+var Person = function(name, work) {
     var _person = new Human();
     _person.name = new Named(name);
     _person.work = new Work(work);
@@ -679,43 +677,43 @@ console.log(person.work.workDesc);
 //1 ， 原型模式
 //特点：
 //图片轮播类
-var LoopImages = function (imgArr, cotainer) {
+var LoopImages = function(imgArr, cotainer) {
     this.imageArray = imgArr;
     this.cotainer = cotainer;
 }
 LoopImages.prototype = {
-        createImage: function () {
+        createImage: function() {
             console.log('LoopImages createImage...');
         },
-        changeImage: function () {
+        changeImage: function() {
             console.log('LoopImages changeImage...');
         }
     }
     //上下滑动类
-var SlideLoopImg = function (imgArr, cotainer) {
+var SlideLoopImg = function(imgArr, cotainer) {
     LoopImages.call(this, imgArr, cotainer); //构造函数继承
 }
 SlideLoopImg.prototype = new LoopImages(); //类式继承
-SlideLoopImg.prototype.changeImage = function () {
+SlideLoopImg.prototype.changeImage = function() {
         console.log('slideLoopImg changeImage...');
     }
     //渐隐切换类
-var FadeLoopImg = function (imgArr, cotainer, arrow) {
+var FadeLoopImg = function(imgArr, cotainer, arrow) {
     LoopImages.call(this, imgArr, cotainer); //构造函数继承
     this.arrow = arrow;
 }
 FadeLoopImg.prototype = new LoopImages(); //类式继承
-FadeLoopImg.prototype.changeImage = function () {
+FadeLoopImg.prototype.changeImage = function() {
         console.log('FadeLoopImg changeImage...');
     }
     //测试用例：
 var fadeimg = new FadeLoopImg([], 'fade', 'left');
 console.log(fadeimg.cotainer);
 console.log(fadeimg.changeImage());
-LoopImages.prototype.getImgLength = function () {
+LoopImages.prototype.getImgLength = function() {
     return this.imageArray.length;
 }
-FadeLoopImg.prototype.getContainer = function () {
+FadeLoopImg.prototype.getContainer = function() {
     return this.container;
 }
 console.log(fadeimg.getImgLength());
@@ -723,7 +721,7 @@ console.log(fadeimg.getContainer());
 //---- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -;
 //2 ， 原型继承
 function prototypeExtend() {
-    var F = function () {},
+    var F = function() {},
         args = arugemnts,
         i = 0,
         len = args.length;
@@ -737,15 +735,15 @@ function prototypeExtend() {
 //示例
 var penguin = prototypeExtend({
     speed: 20,
-    swim: function () {
+    swim: function() {
         consloe.log("游泳速度=", this.speed);
     }
 }, {
-    run: function (speed) {
+    run: function(speed) {
         consloe.log("奔跑速度=", this.speed);
     }
 }, {
-    jump: function () {
+    jump: function() {
         consloe.log("跳跃动作");
     }
 });
@@ -778,19 +776,19 @@ var Conf = {
 var count = Conf.get('COUNT');
 consloe.log(count);
 //2 ， 构造函数单例模式(惰性单例)
-var LazySingle = (function () {
+var LazySingle = (function() {
     var _instance = null;
 
     function Single() {
         var name = 'lazy';
         return {
-            publicMehd: function () {
+            publicMehd: function() {
                 console.log(name);
             },
             publicProy: '1.0'
         }
     }
-    return function () {
+    return function() {
         if (!_instance) {
             _instance = Single();
         }
@@ -817,24 +815,24 @@ function on(dom, type, callback) {
 }
 //测试
 var myinput = doucument.getElementById('myinput');
-on(myinput, 'click', function () {
+on(myinput, 'click', function() {
     console.log(bind one event);
 });
-on(myinput, 'click', function () {
+on(myinput, 'click', function() {
     console.log(bind two event);
 });
 //1.2 其他
 //获取对象兼容
-var getEvent = function (event) {
+var getEvent = function(event) {
     return event || window.event; //ie下是window.event;
 };
 //获取元素
-var getTarget = function (event) {
+var getTarget = function(event) {
     var event = getEvent(event);
     return event.target || event.srcElement;
 };
 //阻止默认行为
-var preventDef = function (event) {
+var preventDef = function(event) {
     var event = getEvent(event);
     if (event.preventDefault) {
         event.preventDefault();
@@ -845,19 +843,19 @@ var preventDef = function (event) {
 };
 //2 ， 一个小型的代码库
 var A = {
-    g: function (id) {
+    g: function(id) {
         return doucument.getElementById(id);
     },
     css: funciton(id, key, val) {
         doucument.getElementById(id).style[key] = val;
     },
-    attr: function (id, key, val) {
+    attr: function(id, key, val) {
         doucument.getElementById(id)[key] = val;
     },
-    html: function (id, html) {
+    html: function(id, html) {
         doucument.getElementById(id).innerHTML = html;
     },
-    on: function (id, type, fn) {
+    on: function(id, type, fn) {
         doucument.getElementById(id)['on' + type] = fn;
     }
 };
@@ -865,7 +863,7 @@ var A = {
 A.css('box', 'backgroud', 'red');
 A.attr('box', 'className', 'box');
 A.html('box', 'add new content');
-A.on('box', 'click', function () {
+A.on('box', 'click', function() {
     A.css('box', 'width', '500px');
 });
 /*****************************************
@@ -878,7 +876,7 @@ function ajaxAdapter(data) {
 }
 $.ajax({
     url: 'srt.php',
-    success: function (data) {
+    success: function(data) {
         if (data) {
             dosamething(ajaxAdapter(data));
         }
@@ -889,9 +887,9 @@ $.ajax({
  ****************************************/
 //代理模式： 一个对象不能访问另一个对象。 通过代理对象起中介作用获得联系。 如翻墙， 跨域等
 //1 ， 站长统计
-var Count = (function () {
+var Count = (function() {
     var img = new Image();
-    return function (param) {
+    return function(param) {
         var str = 'http://www.count.com/a.gif?';
         for (var i in param) {
             str += i + '=' + param[i];
@@ -925,11 +923,11 @@ Count({
  *******************************************/
 //装饰者模式： 在不改变原对象的基础上， 通过对其进行包装（ 添加属性和方法） 使原有对象可以满足用户更复杂的需求。
 //1 ， 装饰已有的功能：
-var decorator = function (input, fn) {
+var decorator = function(input, fn) {
     var input = doucument.getElementById(input);
     if (typeof input.onclick === 'function') {
         var oldclickFn = input.onclick;
-        input.onclick = function () {
+        input.onclick = function() {
             oldclickFn();
             fn();
         }
@@ -942,11 +940,11 @@ var decorator = function (input, fn) {
  *******************************************/
 //桥接模式： 将业务和抽象逻辑解耦.1 ， 类似代码的提取
 var span = $('span');
-span[0].mouseover = function () {
+span[0].mouseover = function() {
     this.style.color = 'red';
     this.style.backgroud = 'green';
 }
-span[1].mouseover = function () {
+span[1].mouseover = function() {
     this.style.color = 'blue';
     this.style.backgroud = 'green';
 };
@@ -956,14 +954,14 @@ function chageColor(dom, color, bg) { //提取
     dom.style.backgroud = bg;
 }
 var span = $('span');
-span[0].mouseover = function () {
+span[0].mouseover = function() {
     chageColor(this, 'red', '#ddd');
 }
-span[1].mouseover = function () {
+span[1].mouseover = function() {
     tchageColor(this, 'blue', '#ccc');
 };
 //课后练习：创建一个对象桥接method。实现为对象拓展方法的功能
-Object.prototype.method = function (name, fn) {
+Object.prototype.method = function(name, fn) {
     if (!this[name]) {
         this[name] = fn;
     }
@@ -974,85 +972,85 @@ Object.prototype.method = function (name, fn) {
 //组合模式： 由部分到整体的方式， 由一个人到一群人的方式。 如套餐， 团队等
 //1 ， 新闻模块组合
 //虚拟类
-var News = function () {
+var News = function() {
     this.children = []; //子组件容器
     this.elem = null; //当前组件元素
 }
 News.prototype = {
-    init: function () {
+    init: function() {
         throw new Error('请重写这个方法');
     },
-    add: function () {
+    add: function() {
         throw new Error('请重写这个方法');
     },
-    getElemt: function () {
+    getElemt: function() {
         throw new Error('请重写这个方法');
     }
 };
 //容器类构造函数
-var Container = function (id, parent) {
+var Container = function(id, parent) {
     News.call(this);
     this.id = id;
     this.parent = parent;
     this.init();
 };
 inheritPrototype(Container, News); //寄生式继承父类原型方法
-Container.prototype.init = function () {
+Container.prototype.init = function() {
     this.elem = document.createElement('ul');
     this.elem.id = this.id;
     this.elem.className = 'new-container';
 }
-Container.prototype.add = function (child) {
+Container.prototype.add = function(child) {
     this.children.push(child);
     this.elem.appendChild(child.getElement());
     return this;
 }
-Container.prototype.getElement = function () {
+Container.prototype.getElement = function() {
     return this.elem;
 }
-Container.prototype.show = function () {
+Container.prototype.show = function() {
     this.parent.appendChild(this.elem);
 };
 //下一行的成员集合类
-var Item = function (classname) {
+var Item = function(classname) {
     News.call(this);
     this.className = className || '';
     this.init();
 };
 inheritPrototype(Item, News); //寄生式继承父类原型方法
-Item.prototype.init = function () {
+Item.prototype.init = function() {
     this.elem = document.createElement('li');
     this.elem.className = this.className;
 }
-Item.prototype.add = function (child) {
+Item.prototype.add = function(child) {
     this.children.push(child);
     this.elem.appendChild(child.getElement());
     return this;
 }
-Item.prototype.getElement = function () {
+Item.prototype.getElement = function() {
         return this.elem;
     }
     //新闻体合体类
-var newsGroup = function (classname) {
+var newsGroup = function(classname) {
     News.call(this);
     this.className = className || '';
     this.init();
 };
 inheritPrototype(newsGroup, News); //寄生式继承父类原型方法
-newsGroup.prototype.init = function () {
+newsGroup.prototype.init = function() {
     this.elem = document.createElement('div');
     this.elem.className = this.className;
 }
-newsGroup.prototype.add = function (child) {
+newsGroup.prototype.add = function(child) {
     this.children.push(child);
     this.elem.appendChild(child.getElement());
     return this;
 }
-newsGroup.prototype.getElement = function () {
+newsGroup.prototype.getElement = function() {
         return this.elem;
     }
     //图片新闻类
-var ImageNews = function (url, herf, className) {
+var ImageNews = function(url, herf, className) {
     News.call(this);
     this.url = url;
     this.herf = herf || '#';
@@ -1060,7 +1058,7 @@ var ImageNews = function (url, herf, className) {
     this.init();
 };
 inheritPrototype(ImageNews, News); //寄生式继承父类原型方法
-ImageNews.prototype.init = function () {
+ImageNews.prototype.init = function() {
     this.elem = document.createElement('a');
     var img = new Image();
     img.src = this.url;
@@ -1068,16 +1066,16 @@ ImageNews.prototype.init = function () {
     this.elem.className = 'img-new' + this.className;
     this.elem.href = this.href;
 }
-ImageNews.prototype.add = function (child) {
+ImageNews.prototype.add = function(child) {
     this.children.push(child);
     this.elem.appendChild(child.getElement());
     return this;
 }
-ImageNews.prototype.getElement = function () {
+ImageNews.prototype.getElement = function() {
         return this.elem;
     }
     //图片新闻类
-var IconNews = function (text, herf, type) {
+var IconNews = function(text, herf, type) {
     News.call(this);
     this.text = text || '';
     this.herf = herf || '#';
@@ -1085,36 +1083,36 @@ var IconNews = function (text, herf, type) {
     this.init();
 };
 inheritPrototype(IconNews, News); //寄生式继承父类原型方法
-IconNews.prototype.init = function () {
+IconNews.prototype.init = function() {
     this.elem = document.createElement('a');
     this.elem.innerHTML = this.text;
     this.elem.className = 'icon' + this.type;
     this.elem.href = this.href;
 }
-IconNews.prototype.add = function (child) {}
-IconNews.prototype.getElement = function () {
+IconNews.prototype.add = function(child) {}
+IconNews.prototype.getElement = function() {
         return this.elem;
     }
     //图片新闻类
-var EasyNews = function (text, herf) {
+var EasyNews = function(text, herf) {
     News.call(this);
     this.text = text || '';
     this.herf = herf || '#';
     this.init();
 };
 inheritPrototype(EasyNews, News); //寄生式继承父类原型方法
-EasyNews.prototype.init = function () {
+EasyNews.prototype.init = function() {
     this.elem = document.createElement('a');
     this.elem.innerHTML = this.text;
     this.elem.className = 'text';
     this.elem.href = this.href;
 }
-EasyNews.prototype.add = function (child) {}
-EasyNews.prototype.getElement = function () {
+EasyNews.prototype.add = function(child) {}
+EasyNews.prototype.getElement = function() {
         return this.elem;
     }
     //图片新闻类
-var TypeNews = function (text, herf, type, pos) {
+var TypeNews = function(text, herf, type, pos) {
     News.call(this);
     this.text = text || '';
     this.herf = herf || '#';
@@ -1123,7 +1121,7 @@ var TypeNews = function (text, herf, type, pos) {
     this.init();
 };
 inheritPrototype(TypeNews, News); //寄生式继承父类原型方法
-TypeNews.prototype.init = function () {
+TypeNews.prototype.init = function() {
     this.elem = document.createElement('a');
     if (this.pos === 'left') {
         this.elem.innerHTML = '[' + this.type + ']' + this.text;
@@ -1133,8 +1131,8 @@ TypeNews.prototype.init = function () {
     this.elem.className = 'text';
     this.elem.href = this.href;
 }
-TypeNews.prototype.add = function (child) {}
-TypeNews.prototype.getElement = function () {
+TypeNews.prototype.add = function(child) {}
+TypeNews.prototype.getElement = function() {
         return this.elem;
     }
     //测试
@@ -1146,30 +1144,30 @@ new1.add(new Item('normal').add(new ImageNews('http://123.com', '#', 'imagecss')
 //享元模式： 模块化， 相同内容提取封装。 避免对象间有相同内容造成多余开销且难维护。
 //1 ， 游戏中的人物， 精灵等角色， 创建一个统一享元类， 实现横向和纵向移动。
 var FlyWeight = {
-    moveX: function (x) {
+    moveX: function(x) {
         this.x = x;
     },
-    moveY: function (y) {
+    moveY: function(y) {
         this.y = y;
     }
 };
-var Player = function (x, y, c) {
+var Player = function(x, y, c) {
     this.x = x;
     this.y = y;
     this.color = c;
 };
 Player.prototype = FlyWeight;
-Player.prototype.changeR = function (r) {
+Player.prototype.changeR = function(r) {
     this.r = r;
 };
 //精灵
-var Spirit = function (x, y, r) {
+var Spirit = function(x, y, r) {
     this.x = x;
     this.y = y;
     this.r = r;
 }
 Spirit.prototype = FlyWeight;
-Spirit.prototype.changeR = function (r) {
+Spirit.prototype.changeR = function(r) {
     this.r = r;
 };
 //测试
@@ -1185,7 +1183,7 @@ console.log("spirit1...=", spirit1);
  ************************************/
 //模板方法模式： 父类定义一组算法骨架， 而子类在不改变骨架的基础上做一些拓展。
 //1 ， 提示框归一化
-var Alert = function (data) {
+var Alert = function(data) {
     if (!data) {
         return;
     }
@@ -1199,11 +1197,11 @@ var Alert = function (data) {
     this.confirmBtn.className = "a-confirm"; //为确定按钮添加类
     this.confirmBtn.innerHTML = data.confirm || '确认';
     this.contentNode.innerHTML = this.content; //为提示内容添加文本
-    this.success = data.success || function () {};
-    this.fail = data.fail || function () {};
+    this.success = data.success || function() {};
+    this.fail = data.fail || function() {};
 };
 Alert.prototype = {
-    init: function () {
+    init: function() {
         this.panel.appendChild(this.closeBtn);
         this.panel.appendChild(this.contentNode);
         this.panel.appendChild(this.confirmBtn);
@@ -1211,44 +1209,44 @@ Alert.prototype = {
         this.bindEvent();
         this.show();
     },
-    bindEvent: function () {
+    bindEvent: function() {
         var me = this;
-        this.closeBtn.onclick = function () {
+        this.closeBtn.onclick = function() {
             me.fail();
             me.hide();
         }
-        this.confirm.onclick = function () {
+        this.confirm.onclick = function() {
             me.success();
             me.hide();
         }
     },
-    hide: function () {
+    hide: function() {
         this.panel.style.display = 'none';
     },
-    show: function () {
+    show: function() {
         this.panel.style.display = 'show';
     }
 };
 //右侧按钮提示框
-var RightAlert = function (data) {
+var RightAlert = function(data) {
     Alert.call(this, data);
     this.confirmBtn.className = this.confirmBtn.className + 'right';
 }
 RightAlert.prototype = new Alert();
 //标题提示框
-var TitleAlert = function (data) {
+var TitleAlert = function(data) {
     Alert.call(this, data);
     this.title = data.title;
     this.titleNode = document.createElement('h3');
     this.titleNode.innerHTML = this.title;
 }
 TitleAlert.prototype = new Alert();
-TitleAlert.prototype.init = function () {
+TitleAlert.prototype.init = function() {
         this.panel.insertBefore(this.titleNode, this.panel.firstChild);
         Alert.prototype.init.call(this);
     }
     //带有取消按钮的弹出框
-var CanelAlert = function (data) {
+var CanelAlert = function(data) {
     TitleAlert.call(this, data);
     this.cancel = data.cancel;
     this.cancelBtn = doucument.body.appendChild('span');
@@ -1256,14 +1254,14 @@ var CanelAlert = function (data) {
     this.cancelBtn.innerHTML = this.cancel || '取消';
 }
 CanelAlert.prototype = new Alert();
-CanelAlert.prototype.init = function () {
+CanelAlert.prototype.init = function() {
     TitleAlert.prototype.init.call(this);
     this.panel.appendChild(this.cancelBtn);
 }
-CanelAlert.prototype.bindEvent = function () {
+CanelAlert.prototype.bindEvent = function() {
     var me = this;
     TitleAlert.prototype.bindEvent.call(this);
-    this.cancelBtn.onclick = function () {
+    this.cancelBtn.onclick = function() {
         me.fail();
         me.hide();
     }
@@ -1272,10 +1270,10 @@ CanelAlert.prototype.bindEvent = function () {
 new CanelAlert({
     title: '提示标题',
     content: '',
-    success: function () {
+    success: function() {
         console.log('ok');
     },
-    fail: function () {
+    fail: function() {
         console.log('fail');
     }
 }).init();
@@ -1283,12 +1281,12 @@ new CanelAlert({
 
 function formateString(str, data) {
     //格式化字符串
-    return str.replace(/\{#(\w+)#\}/g, function (match, key) {
+    return str.replace(/\{#(\w+)#\}/g, function(match, key) {
         return typeof data[key] === undefined ? '' : data[key];
     });
 }
 //基础导航
-var Nav = function (data) {
+var Nav = function(data) {
     this.item = '<a href="{#href#}" title="{#title#}">{#name#}</a>';
     this.html = '';
     for (var i = 0, len = data.length; i < len; i++) {
@@ -1297,7 +1295,7 @@ var Nav = function (data) {
     return this.html;
 };
 //带有消息提醒导航
-var NumNav = function (data) {
+var NumNav = function(data) {
     var tpl = '<b>{#num#}</b>';
     for (var i = data.length - 1; i >= 0; i--) {
         data[i].name += data[i].name + formateString(tpl, data[i]);
@@ -1305,7 +1303,7 @@ var NumNav = function (data) {
     return Nav.call(this, data);
 };
 //带有链接地址的导航
-var LinkNav = function (data) {
+var LinkNav = function(data) {
     var tpl = '<span>{#link#}</span>';
     for (var i = data.length - 1; i >= 0; i--) {
         data[i].name += data[i].name + formateString(tpl, data[i]);
@@ -1314,34 +1312,32 @@ var LinkNav = function (data) {
 };
 //测试
 var nav = document.getElementById('content');
-nav.innerHTML = NumNav([
-    {
-        href: 'http://www.baidu.com',
-        title: '百度一下，你就知道',
-        name: '百度',
-        num: '10'
-  }, {
-        href: 'http://www.taobao.com',
-        title: '淘宝商城',
-        name: '淘宝',
-        num: '2'
-  }
-]);
+nav.innerHTML = NumNav([{
+    href: 'http://www.baidu.com',
+    title: '百度一下，你就知道',
+    name: '百度',
+    num: '10'
+}, {
+    href: 'http://www.taobao.com',
+    title: '淘宝商城',
+    name: '淘宝',
+    num: '2'
+}]);
 /********************
  * 第17章： 观察者模式
  ********************/
 //观察者模式：（ 也叫发布 - 订阅者模式） 定义一种依赖关系， 解决主体对象与观察者之间的耦合。 如机场塔楼.主要应用与模块间的通讯。
-var Observer = (function () {
+var Observer = (function() {
     var _messages = {};
     return {
-        regist: function (type, fn) { //注册
+        regist: function(type, fn) { //注册
             if (typeof _messages[type] === 'undefined') {
                 _messages[type] = [fn];
             } else {
                 _messages[type].push(fn);
             }
         },
-        fire: function (type, args) { //发布
+        fire: function(type, args) { //发布
             if (!_messages[type]) {
                 return;
             }
@@ -1355,7 +1351,7 @@ var Observer = (function () {
                 _messages[type][i].call(this, events);
             }
         },
-        remove: function (type, fn) { //移除
+        remove: function(type, fn) { //移除
             if (_messages[type] instanceof Array) {
                 var i = _messages[type].length - 1;
                 for (; i >= 0; i--) {
@@ -1367,7 +1363,7 @@ var Observer = (function () {
     }
 })();
 //测试
-var test = function (e) {
+var test = function(e) {
     console.log(e.type, e.args.msg);
 }
 Observer.regist('test', test);
@@ -1379,23 +1375,23 @@ Observer.fire('test', {
     msg: '传递参数111'
 });
 //对象解耦
-var Student = function (result) {
+var Student = function(result) {
     var that = this;
     this.result = result;
-    this.say = function () {
+    this.say = function() {
         console.log(this.result);
     }
 };
-Student.prototype.answer = function (question) {
+Student.prototype.answer = function(question) {
     Observer.regist(qustion, this.say);
 };
-Student.prototype.sleep = function (question) { //学生呼呼
+Student.prototype.sleep = function(question) { //学生呼呼
     console.log(this.result + ' ' + question + '被注销');
     Observer.remove(qustion, this.say);
 };
 //教师类
-var Teacher = function () {};
-Teacher.prototype.ask = function (question) {
+var Teacher = function() {};
+Teacher.prototype.ask = function(question) {
     console.log('问题是： ' + question);
     Observer.fire(qustion);
 };
@@ -1418,21 +1414,21 @@ teacher.ask('什么是猕猴桃');
 //状态模式： 状态的改变,
 //引起行为的变化。 主要用来处理臃肿的分支语句。 如： http的状态码等
 //1 ， 状态对象的实现
-var ResultState = function () {
+var ResultState = function() {
     var States = {
-        state0: function () {
+        state0: function() {
             //处理结果0
             console.log('这是第一种情况');
         },
-        state1: function () {
+        state1: function() {
             //处理结果0
             console.log('这是第2种情况');
         },
-        state2: function () {
+        state2: function() {
             //处理结果0
             console.log('这是第3种情况');
         },
-        state3: function () {
+        state3: function() {
             //处理结果0
             console.log('这是第4种情况');
         }
@@ -1448,25 +1444,25 @@ var ResultState = function () {
 //测试
 console.log(ResultState.show(0));
 //2 ， 超级玛丽
-var MarryState = function () {
+var MarryState = function() {
     var _currentState = {},
         states = {
-            jump: function () {
+            jump: function() {
                 console.log('jump...');
             },
-            move: function () {
+            move: function() {
                 console.log('move...');
             },
-            shoot: function () {
+            shoot: function() {
                 console.log('shoot...');
             },
-            squat: function () {
+            squat: function() {
                 //蹲下
                 console.log('squat...');
             }
         };
     var Action = {
-        chageState: function () {
+        chageState: function() {
             var args = arguments,
                 _chageState = {}; //重置内部状态
             if (args.length) {
@@ -1476,7 +1472,7 @@ var MarryState = function () {
             };
             return this;
         },
-        goes: function () {
+        goes: function() {
             console.log('触发一次动作');
             for (var i in _chageState) {
                 states[i] && states[i]();
@@ -1496,22 +1492,22 @@ marry.change('jump', 'shoot').goes().goes().change('shoot').goes();
  ********************************/
 //策略模式： 算法不同， 业务相同。 封装的算法具有独立性。 多用于促成活动类似的场景。
 //1 ， 商品促销
-var PriceStrategy = function () {
+var PriceStrategy = function() {
     var strategy = {
-        return30: function (price) {
+        return30: function(price) {
             //100返30
             return Number(price) + parseInt(price / 100) * 30;
         },
-        return50: function (price) {
+        return50: function(price) {
             //100返30
             return Number(price) + parseInt(price / 100) * 50;
         },
-        percent90: function (price) {
+        percent90: function(price) {
             //9折
             return parseInt(price) * 100 * 90 / 10000;
         }
     };
-    return function (alg, price) {
+    return function(alg, price) {
         return strategy[alg] && strategy[alg](price);
     };
 };
@@ -1528,22 +1524,22 @@ console.log("price..=", price);
  ********************************/
 //命令模式： 对一系列命令封装， 简化操作。 可以批量执行命令。
 //用canvas绘制对象
-var CanvasCmd = (function () {
+var CanvasCmd = (function() {
     var canvas = document.getElementById('canvas'),
         ctx = canvas.getContext('2d');
     var Action = {
-        fillStyle: function (c) {
+        fillStyle: function(c) {
             ctx.fillStyle = c;
         },
-        fillRect: function (x, y, width, height) {
+        fillRect: function(x, y, width, height) {
             ctx.fillRect(x, y, width, height);
         },
-        fill: function () {
+        fill: function() {
             ctx.fill();
         }
     };
     return {
-        excute: function (msg) {
+        excute: function(msg) {
             if (!msg) {
                 return;
             }
@@ -1560,32 +1556,30 @@ var CanvasCmd = (function () {
 })();
 //测试
 //填充为红色， 并绘制矩形
-CanvasCmd.excute([
-    {
-        command: 'fillStyle',
-        param: 'red'
-  }, {
-        command: 'fillRect',
-        param: [20, 20, 100, 100]
-  }
-]);
+CanvasCmd.excute([{
+    command: 'fillStyle',
+    param: 'red'
+}, {
+    command: 'fillRect',
+    param: [20, 20, 100, 100]
+}]);
 /*******************************
  * 第22章 : 访问者模式
  ******************************/
 //1 ， 对象访问器
-var Visitor = (function () {
+var Visitor = (function() {
     return {
-        splice: function () {
+        splice: function() {
             var args = Array.prototype.splice.call(arguments, 1);
             return Array.prototype.splice.apply(arguments[0], args);
         },
-        push: function () {
+        push: function() {
             var len = arguments[0].length || 0;
             var args = this.splice(arguments, 1);
             arguments[0].length = len + arguments.length - 1;
             return Array.prototype.push.apply(arguments[0], args);
         },
-        pop: function () {
+        pop: function() {
             return Array.prototype.pop.apply(arguments[0]);
         }
     }
@@ -1609,16 +1603,16 @@ console.log(a);
  * 第24章 : 备忘录模式
  *************************************/
 //缓存已请求的翻页数据;
-var Page = function () {
+var Page = function() {
     var cache = {};
-    return function (page, fn) {
+    return function(page, fn) {
         if (cache[page]) {
             showPage(page, cache[page]);
             fn && fn();
         } else {
             $.post('http://demo.php', {
                 page: page
-            }, function (res) {
+            }, function(res) {
                 if (res.errNo = 0) {
                     showPage(page, cache[page]);
                     cache[page] = res.data;
@@ -1633,22 +1627,22 @@ var Page = function () {
  *************************************/
 //迭代器模式： 在不暴露对象内部结构的同时， 可以顺序地访问聚合对象内部的元素。
 //1, 迭代器
-var Iterator = function (items, container) {
+var Iterator = function(items, container) {
     var container = container && document.getElementById(container) || document,
         items = container.getElementByTagName(items),
         length = items.length,
         index = 0;
     var splice = [].splice;
     return {
-        first: function () {
+        first: function() {
             index = 0;
             return items[index];
         },
-        last: function () {
+        last: function() {
             index = length - 1;
             return items[index];
         },
-        pre: function () {
+        pre: function() {
             if (--index > 0) {
                 return items[index];
             } else {
@@ -1656,7 +1650,7 @@ var Iterator = function (items, container) {
                 return null;
             }
         },
-        next: function () {
+        next: function() {
             if (++index < length) {
                 return items[index];
             } else {
@@ -1664,22 +1658,22 @@ var Iterator = function (items, container) {
                 return null;
             }
         },
-        get: function (num) {
+        get: function(num) {
             index = num >= 0 ? num % length : num % length + length;
             return items[index];
         },
-        dealEach: function (fn) {
+        dealEach: function(fn) {
             //对每一个元素执行某操作
             var args = Array.prototype.splice.call(arguments, 1);
             for (var i = 0; i < length; i++) {
                 fn.apply(items[i], args);
             }
         },
-        dealItem: function (num, fn) {
+        dealItem: function(num, fn) {
             //对某一个元素执行某操作
             fn.apply(this.get(num), Array.prototype.splice.call(arguments, 2));
         },
-        exclusive: function (num, allFn, numFn) {
+        exclusive: function(num, allFn, numFn) {
             //排他方式处理某一元素
             this.dealEach(allFn);
             if (Object.prototype.toString.call(num) === "[object Array]") {
@@ -1699,21 +1693,21 @@ console.log(demo.first());
 console.log(demo.pre());
 console.log(demo.next());
 console.log(demo.get(2000));
-demo.dealEach(function (text, color) {
+demo.dealEach(function(text, color) {
     this.innerHTML = text;
     this.style.backgroud = color;
 }, 'test', 'pink');
 demo.exclusive([
-  2, 3
-], function () {
+    2, 3
+], function() {
     this.innerHTML = '被排除的';
     this.style.backgroud = 'green';
-}, function () {
+}, function() {
     this.innerHTML = '选中的';
     this.style.backgroud = 'red';
 });
 //2, 数组迭代器
-var eachArray = function (arr, fn) {
+var eachArray = function(arr, fn) {
     var i = 0,
         len = arr.length;
     for (; i < len; i++) {
@@ -1723,7 +1717,7 @@ var eachArray = function (arr, fn) {
     }
 };
 //3, 对象迭代器
-var eachObject = function (obj, fn) {
+var eachObject = function(obj, fn) {
     for (var i in obj) {
         if (fn.call(obj[i], i, obj[i]) === false) {
             break;
@@ -1744,7 +1738,7 @@ eachObject(obj, funciton(i, data) {
     console.log(i, data);
 });
 //4, 同步变量迭代器 : 这个很有用， 用来检查后端返回json数据是否有字段。
-var AGetter = function (key) {
+var AGetter = function(key) {
         if (!A) {
             return undefined;
         }
@@ -1773,7 +1767,7 @@ var A = {
 console.log(AGetter(client.user.username));
 console.log(AGetter(server.lang.local));
 //5, 同步变量迭代赋值器
-var AGetter = function (key, val) {
+var AGetter = function(key, val) {
     if (!A) {
         return false;
     }
@@ -1809,7 +1803,7 @@ console.log(AGetter(server.lang.local, 'cn'));
  **********************/
 //解释器模式 : 对于客户的一个需求， 经过解析而形成的一个抽象解析程序。 如tmpl模板解析， seajs， babel等。
 //1 ， xpath解析器
-var Interpreter = (function () {
+var Interpreter = (function() {
     //获取兄弟元素名称
     function getSublingName(node) {
         if (node.previousSibling) { //存在兄弟节点
@@ -1833,7 +1827,7 @@ var Interpreter = (function () {
             return '';
         }
     }
-    return function (node, wrap) {
+    return function(node, wrap) {
         //node:目标节点，wrap:容器节点
         var path = [],
             wrap = wrap || doucument;
@@ -1880,10 +1874,10 @@ console.log(path.join('>')); //HTML>BODY|HEAD>DEV2>DEV>UL>LI>SPAN
  * 第27章 : 链模式
  ******************************/
 //1, 原型式继承
-var A = function () {};
+var A = function() {};
 A.prototype = {
     length: 2,
-    size: function () {
+    size: function() {
         return this.length;
     }
 };
@@ -1893,12 +1887,12 @@ console.log(a.size());
 console.log(A.size()); //报错
 console.log(A().size()); //报错
 //2 ， 缺点优化
-var A = function () {
+var A = function() {
     return A.fn;
 };
 A.fn = A.prototype = {
     length: 2,
-    size: function () {
+    size: function() {
         return this.length;
     }
 };
@@ -1908,33 +1902,33 @@ console.log(a.size());
 console.log(A.size()); //报错
 console.log(A().size());
 //3 ， 获取元素
-var A = function (selector) {
+var A = function(selector) {
     return A.fn.init(selector);
 };
 A.fn = A.prototype = {
     length: 2,
-    init: function (selector) {
+    init: function(selector) {
         return document.getElementById(selector);
     },
-    size: function () {
+    size: function() {
         return this.length;
     }
 };
 console.log(A('demo'));
 console.log(A('demo').size()); //报错
 //4 ， 问题优化
-var A = function (selector) {
+var A = function(selector) {
     return A.fn.init(selector);
 };
 A.fn = A.prototype = {
     length: 2,
-    init: function (selector) {
+    init: function(selector) {
         this[0] = document.getElementsByTagName(selector);
         this.length = 1;
         console.log(A.fn, A.prototype, this);
         return this;
     },
-    size: function () {
+    size: function() {
         return this.length;
     }
 };
@@ -1945,19 +1939,19 @@ var test = A('div');
 console.log(demo); //这个对象被覆盖了
 console.log(demo.size());
 //5 ， 优化
-var A = function (selector) {
+var A = function(selector) {
     return new A.fn.init(selector);
 };
 A.fn = A.prototype = {
     length: 2,
     constructor: A,
-    init: function (selector) {
+    init: function(selector) {
         this[0] = document.getElementsByTagName(selector); //为了测试，正常：getElementsById
         this.length = 1;
         console.log(A.fn, A.prototype, this);
         return this;
     },
-    size: function () {
+    size: function() {
         return this.length;
     }
 };
@@ -1970,13 +1964,13 @@ var test = A('div');
 console.log(demo);
 console.log(demo.size());
 //6, 丰富元素获取
-var A = function (selector, context) {
+var A = function(selector, context) {
     return new A.fn.init(selector, context);
 };
 A.fn = A.prototype = {
     length: 2,
     constructor: A,
-    init: function (selector, context) {
+    init: function(selector, context) {
         this.length = 0,
             context = context || document;
         if (~selector.indexOf('#')) { //将-1转为0
@@ -1995,7 +1989,7 @@ A.fn = A.prototype = {
         this.selector = selector;
         return this;
     },
-    size: function () {
+    size: function() {
         return this.length;
     },
     push: [].push,
@@ -2003,7 +1997,7 @@ A.fn = A.prototype = {
 };
 A.fn.init.prototype = A.fn; //关键代码
 //7, 对象、 方法拓展
-A.extend = A.fn.extend = function () {
+A.extend = A.fn.extend = function() {
     var i = 1,
         len = arugemnts.length,
         target = arguments[0],
@@ -2034,9 +2028,9 @@ A.extend(A, {
 });
 //事件方法处理
 A.fn.extend({
-    on: (function () {
+    on: (function() {
         if (document.addEventListener) {
-            return function (type, fn) {
+            return function(type, fn) {
                 var i = this.length - 1;
                 for (; i >= 0; i--) {
                     this[i].addEventListener(type, fn, false);
@@ -2044,7 +2038,7 @@ A.fn.extend({
                 return this;
             };
         } else if (document.attachEvent) {
-            return function (type, fn) {
+            return function(type, fn) {
                 var i = this.length - 1;
                 for (; i >= 0; i--) {
                     this[i].attachEvent('on' + type, fn);
@@ -2052,7 +2046,7 @@ A.fn.extend({
                 return this;
             };
         } else {
-            return function (type, fn) {
+            return function(type, fn) {
                 var i = this.length - 1;
                 for (; i >= 0; i--) {
                     this[i]['on' + type] = fn;
@@ -2064,14 +2058,14 @@ A.fn.extend({
 });
 //将-样式处理成驼峰
 A.extend({
-    camelCase: function (str) {
-        return str.replace(/\-(\w)/g, function (all, letter) {
+    camelCase: function(str) {
+        return str.replace(/\-(\w)/g, function(all, letter) {
             return letter.toUpperCase();
         });
     }
 });
 A.extend({
-    css: function () {
+    css: function() {
         var arg = arugemnts,
             len = arg.length;
         if (this.length < 1) {
@@ -2100,7 +2094,7 @@ A.extend({
     }
 });
 A.fn.extend({
-    attr: function () {
+    attr: function() {
         var arg = arguments,
             len = arg.length;
         if (this.length < 1) {
@@ -2125,7 +2119,7 @@ A.fn.extend({
     }
 });
 A.fn.extend({
-    html: function () {
+    html: function() {
         var arg = arguments,
             len = arg.length;
         if (len == 0) {
@@ -2142,14 +2136,14 @@ A.fn.extend({
 A('div').css({
     height: '30px',
     'backgroud-color': 'red'
-}).attr('class', 'demo').html('add text').on('click', function () {
+}).attr('class', 'demo').html('add text').on('click', function() {
     console.log('clicked');
 });
 /*************************************
  * 第28章 : 委托模式
  *************************************/
 //1 ，子元素事件委托给父元素。通过冒泡事件统一处理
-ul.onclick = function (e) {
+ul.onclick = function(e) {
     var e = e || window.event,
         tar = e.target || e.srcElement;
     if (tar.nodeName.toLowerCase() === 'li') {
@@ -2160,7 +2154,7 @@ ul.onclick = function (e) {
  * 第29章 : 数据访问对象模式（DAO）
  *************************************/
 //构建本地存储类
-var baseLocalStorage = function (preId, tiemSign) {
+var baseLocalStorage = function(preId, tiemSign) {
         //preid----本地存储数据库前缀，tiemSign--时间戳与存储数据之间的拼接符
         this.preId = preId;
         this.tiemSign = tiemSign || '|-|';
@@ -2174,10 +2168,10 @@ baseLocalStorage.prototype = {
             TIMEOUT: 3 //过期
         },
         storage: localStroage || window.localStroage,
-        getKey: function (key) {
+        getKey: function(key) {
             return this.preId + key; //获取本地数据库存储的真实字段
         },
-        set: function (key, value, callback, time) {
+        set: function(key, value, callback, time) {
             //添加修改数据:key-数据字段标识，time--添加时间
             var status = this.status.SUCCESS,
                 key = this.getKey(key);
@@ -2193,7 +2187,7 @@ baseLocalStorage.prototype = {
             }
             callback && callback.call(this, status, key, value);
         },
-        get: function (key, callback) {
+        get: function(key, callback) {
             var status = this.status.SUCCESS,
                 key = this.getKey(key),
                 value = null,
@@ -2233,7 +2227,7 @@ baseLocalStorage.prototype = {
             callback && callback.call(that, result.status, result.value);
             return result;
         },
-        remove: function (key, callback) {
+        remove: function(key, callback) {
             var status = this.status.FAILURE,
                 key = this.getKey(key),
                 value = null;
@@ -2252,13 +2246,13 @@ baseLocalStorage.prototype = {
     }
     //测试
 var LS = new baseLocalStorage('LS_');
-LS.set('a', 'xiaoming', function () {
+LS.set('a', 'xiaoming', function() {
     console.log(arugemnts);
 });
-LS.get('a', function () {
+LS.get('a', function() {
     console.log(arugemnts);
 });
-LS.remove('a', function () {
+LS.remove('a', function() {
     console.log(arugemnts);
 });
 //2,mongodb---nodejs连接mongodb
@@ -2280,11 +2274,11 @@ var d = new mongodb.Db(config.db, new mongodb.server(config.host, config.port, {
 });
 functtion connect(col, fn) {
         //连接数据库，col-集合名称
-        d.open(function (err, db) {
+        d.open(function(err, db) {
             if (err) {
                 throw err;
             } else {
-                db.connection(col, function (err, col) {
+                db.connection(col, function(err, col) {
                     if (err) {
                         throw err;
                     } else {
@@ -2295,10 +2289,10 @@ functtion connect(col, fn) {
         });
     }
     //输出数据访问对象
-exports.DB = function () {
+exports.DB = function() {
     return {
-        insert: function (data, success, fail) {
-            connect(data, function (col, db) {
+        insert: function(data, success, fail) {
+            connect(data, function(col, db) {
                 col.insert(data, funciton(err, docs) {
                     if (err) {
                         fail && fail(err);
@@ -2309,8 +2303,8 @@ exports.DB = function () {
                 })
             });
         },
-        remove: function (data, success, fail) {
-            connect(data, function (col, db) {
+        remove: function(data, success, fail) {
+            connect(data, function(col, db) {
                 col.remove(data, funciton(err, docs) {
                     if (err) {
                         fail && fail(err);
@@ -2321,9 +2315,9 @@ exports.DB = function () {
                 })
             });
         },
-        update: function (con, doc, success, fail) {
+        update: function(con, doc, success, fail) {
             //con-筛选条件，doc-更新数据项
-            connect(col, function (col, db) {
+            connect(col, function(col, db) {
                 col.update(con, doc, funciton(err, len) {
                     if (err) {
                         fail && fail(err);
@@ -2334,8 +2328,8 @@ exports.DB = function () {
                 })
             });
         },
-        find: function (con, success, fail) {
-            connect(col, function (col, db) {
+        find: function(con, success, fail) {
+            connect(col, function(col, db) {
                 col.find(con).toArray(funciton(err, docs) {
                     if (err) {
                         fail && fail(err);
@@ -2354,12 +2348,12 @@ var user = DB('user');
 user.insert({
     name: 'doing',
     nick: '阳光丽景'
-}, function (docs) {
+}, function(docs) {
     console.log(docs);
 });
 user.remove({
     name: 'doing'
-}, function (len) {
+}, function(len) {
     console.log(len);
 });
 user.update({
@@ -2367,12 +2361,12 @@ user.update({
 }, {
     name: 'doing',
     nick: '阳光丽景'
-}, function (len) {
+}, function(len) {
     console.log(len);
 });
 user.find({
     name: 'doing'
-}, function (doc) {
+}, function(doc) {
     console.log(doc);
 });
 /*************************************
@@ -2380,7 +2374,7 @@ user.find({
  *@bref：对重复业务逻辑进行节流控制，只响应最后一次。如多次点击事件。多次请求等。
  *************************************/
 //节流器
-var throttle = function () {
+var throttle = function() {
         var isClear = argument[0],
             fn;
         if (typeof isClear === 'boolean') {
@@ -2395,7 +2389,7 @@ var throttle = function () {
                 time: 300
             }, param);
             arguments[1].callee(true, fn)；
-            fn._throttleID = setTimeout(function () {
+            fn._throttleID = setTimeout(function() {
                 fn.apply(p.context, p.args);
             }, p.time);
         }
@@ -2408,7 +2402,7 @@ function moveScroll() {
         top: top + 300
     }, 400, 'easeOutCublic');
 }
-$(window).on('scroll', function () {
+$(window).on('scroll', function() {
     throttle(moveScroll);
 });
 //2,延迟加载图片类
@@ -2418,11 +2412,11 @@ function LazyLoad(id) {
     this.init();
 }
 LazyLoad.prototype = {
-        init: function () {
+        init: function() {
             this.update();
             this.bindEvent();
         },
-        getImgs: function () {
+        getImgs: function() {
             var arr = [];
             var imgs = document.getElementsByTagName('img');
             for (var i = 0, len = imgs.length; i == ) {
@@ -2430,7 +2424,7 @@ LazyLoad.prototype = {
             }
             return arr;
         },
-        update: function () {
+        update: function() {
             //加载图片
             if (!this.imgs.length) {
                 return;
@@ -2443,7 +2437,7 @@ LazyLoad.prototype = {
                 }
             }
         },
-        shouldShow: function (i) { //判断图片是否在可视范围内
+        shouldShow: function(i) { //判断图片是否在可视范围内
             var img = this.imgs[i],
                 scrollTop = document.documentElement.scrollTop || document.body.scrollTop, //可视顶部高度
                 scrollBottom = scrollTop + document.documentElement.clientHeight, //可视底部高度
@@ -2454,28 +2448,28 @@ LazyLoad.prototype = {
             }
             return false;
         },
-        pageY: function (elem) { //获取元素页面中纵坐标的位置
+        pageY: function(elem) { //获取元素页面中纵坐标的位置
             if (elem.offestParent) { //如果有父元素
                 return elem.offestTop + this.pageY(elem.offestParent);
             } else {
                 return elem.offestTop;
             }
         },
-        on: function (elem, type, fn) {
+        on: function(elem, type, fn) {
             if (elem.addEventListener) {
                 addEventListener(type, fn, false);
             } else {
                 elem.attachEvent('on' + type, fn, false);
             }
         },
-        bindEvent: function () {
+        bindEvent: function() {
             var that = this;
-            this.on(window, 'resize', function () {
+            this.on(window, 'resize', function() {
                 throttle(that.update, {
                     context: that
                 });
             });
-            this.on(window, 'scroll', function () {
+            this.on(window, 'scroll', function() {
                 throttle(that.update, {
                     context: that
                 });
@@ -2486,7 +2480,7 @@ LazyLoad.prototype = {
 new LazyLoad('container');
 
 //3，统计打包    
-var LogPack = (function () {
+var LogPack = (function() {
     var data = [],
         MaxNum = 10,
         itemSplitStr = "|", //参数间隔符
@@ -2507,7 +2501,7 @@ var LogPack = (function () {
         logStr += 'logLength=' + len;
         img.src = 'a.gif?' + logStr;
     }
-    return function (param) {
+    return function(param) {
         if (!param) { //无参数发送统计
             sendLog();
             return;
@@ -2518,14 +2512,14 @@ var LogPack = (function () {
     }
 })();
 //测试
-btn.onlick = function () {
+btn.onlick = function() {
     LogPack({
         btnId: this.id,
         context: this.innerHTML,
         type: 'click'
     });
 };
-btn.onmouseover = function () {
+btn.onmouseover = function() {
     LogPack({
         btnId: this.id,
         context: this.innerHTML,
@@ -2538,7 +2532,7 @@ btn.onmouseover = function () {
 var A = A || {};
 A.root = document.getElementById('container');
 A.strategy = {
-    'listPart': function () {
+    'listPart': function() {
         var s = document.createElement('div'),
             ul = '',
             ldata = data.data.li,
@@ -2557,28 +2551,28 @@ A.strategy = {
         A.root.appendChild(s);
 
     },
-    'codePart': function () {
+    'codePart': function() {
 
     },
-    onlyTitle: function () {
+    onlyTitle: function() {
 
     },
-    guide: function () {
+    guide: function() {
 
     }
 
 };
-A.init = function (data) {
+A.init = function(data) {
         this.strategy[data.type](data);
     }
     //模板渲染方法
-A.formateString = function (str, data) {
-        return str.replace(/\{#(\w+)\}/g, function (match, key) {
+A.formateString = function(str, data) {
+        return str.replace(/\{#(\w+)\}/g, function(match, key) {
             return typeof data[key] === undefined ? '' : data[key];
         });
     }
     //模板生成器
-A.view = function (name) {
+A.view = function(name) {
     var v = {
         code: '<pre><code>{#code#}</code></pre>',
         img: '<img src="{#src#}" alt="{#alt#}" title="{#title#}"/>',
@@ -2599,17 +2593,17 @@ A.view = function (name) {
  * 第32章 : 惰性模式
  *************************************/
 //惰性执行
-A.on = function (dom, type, fn) {
+A.on = function(dom, type, fn) {
     if (dom.addEventListener) {
-        A.on = function (dom, type, fn) {
+        A.on = function(dom, type, fn) {
             dom.addEventListener(type, fn, false);
         }
     } else if (dom.attachEvent) {
-        A.on = function (dom, type, fn) {
+        A.on = function(dom, type, fn) {
             dom.attachEvent('on' + type, fn);
         }
     } else {
-        A.on = function (dom, type, fn) {
+        A.on = function(dom, type, fn) {
             dom['on' + type] = fn;
         }
     }
@@ -2620,22 +2614,22 @@ A.on = function (dom, type, fn) {
  * @bref:在特定的作用域中执行给定的函数，并将参数原封不动的传递
  *************************************/
 //1， 事件绑定并传递参数
-A.event.on = function (dom, type, fn, data) {
+A.event.on = function(dom, type, fn, data) {
     if (dom.addEventListener) {
-        A.event.on = function (dom, type, fn, data) {
-            dom.addEventListener(type, function (e) {
+        A.event.on = function(dom, type, fn, data) {
+            dom.addEventListener(type, function(e) {
                 fn.call(dom, e, data);
             }, false);
         }
     } else if (dom.attachEvent) {
-        A.event.on = function (dom, type, fn, data) {
-            dom.attachEvent('on' + type, function (dom, type, fn, data) {
+        A.event.on = function(dom, type, fn, data) {
+            dom.attachEvent('on' + type, function(dom, type, fn, data) {
                 fn.call(dom, e, data);
             });
         }
     } else {
-        A.event.on = function (dom, type, fn) {
-            dom['on' + type] = function (dom, type, fn, data) {
+        A.event.on = function(dom, type, fn) {
+            dom['on' + type] = function(dom, type, fn, data) {
                 fn.call(dom, e, data);
             };
         }
@@ -2646,7 +2640,7 @@ A.event.on = function (dom, type, fn, data) {
 function curry() {
     var Slice = [].slice;
     var args = Slice.call(arguments, 1);
-    return function () {
+    return function() {
         var addArgs = Slice.call(arguments),
             allArgs = args.concat(addArgs);
         return fn.apply(null, allArgs);
@@ -2672,7 +2666,7 @@ console.log(add7add8());
 function bind(fn, context) {
     var Slice = Array.prototype.slice,
         args = Slice.call(arguments, 2);
-    return function () {
+    return function() {
         var addArgs = Slice.call(arguments),
             allArgs = args.concat(addArgs);
         return fn.call(context, allArgs);
@@ -2681,9 +2675,9 @@ function bind(fn, context) {
 
 }
 //4,反柯里化---方便函数的调用
-Function.prototype.uncurry = function () {
+Function.prototype.uncurry = function() {
     var that = this;
-    return function () {
+    return function() {
         return Function.prototype.call.apply(that, arguments); //注意这行
     }
 }
@@ -2698,19 +2692,19 @@ console.log("demoObj...=", demoObj);
  * 第34章 : 等待者模式
  * @bref:通过对多个异步进程监听，来触发未来发生的动作
  *************************************/
-var Waiter = function () {
+var Waiter = function() {
         var dfd = [], //等待对象接口
             doneArr = [], //成功对象接口
             failArr = [], //失败对象接口
             slice = Array.prototype.slice,
             that = this;
         //监控对象类
-        var Promise = function () {
+        var Promise = function() {
             this.resoled = false; //是否解决成功状态
             this.rejectd = false; //是否解决失败状态
         }
         Promise.prototype = {
-                resolve: function () {
+                resolve: function() {
                     this.resoled = true;
                     if (!dfd.length) {
                         return;
@@ -2724,7 +2718,7 @@ var Waiter = function () {
                     _exec(doneArr); //执行回调
 
                 },
-                reject: function () {
+                reject: function() {
                     this.reject = true;
                     if (!dfd.length) {
                         return;
@@ -2734,7 +2728,7 @@ var Waiter = function () {
                 }
             }
             //创建监控对象
-        that.Deferred = function () {
+        that.Deferred = function() {
                 return new Promise();
             }
             //回调执行方法
@@ -2750,7 +2744,7 @@ var Waiter = function () {
             }
         };
         //监控异步方法
-        that.when = function () {
+        that.when = function() {
             dfd = slice.call(arguments);
             var i = dfd.length;
             for (--i; i >= 0; i--) {
@@ -2765,7 +2759,7 @@ var Waiter = function () {
             doneArr = doneArr.concat(slice.call(arguments));
             return that;
         };
-        that.fail = function () {
+        that.fail = function() {
             failArr = failArr.concat(slice.call(arguments));
             return that;
         };
@@ -2773,42 +2767,42 @@ var Waiter = function () {
     }
     //测试：随机几个运动彩蛋，运动结束后弹出欢迎界面
 var waiter = new Waiter();
-var first = function () {
+var first = function() {
     var dtd = waiter.Deferred();
-    setTimeout(function () {
+    setTimeout(function() {
         console.log('first finish');
         dtd.resolve();
     }, 5000);
     return dtd;
 }();
-var second = function () {
+var second = function() {
     var dtd = waiter.Deferred();
-    setTimeout(function () {
+    setTimeout(function() {
         console.log('second finish');
         dtd.resolve();
     }, 10000);
     return dtd;
 }();
-var three = function () {
+var three = function() {
     var dtd = waiter.Deferred();
-    setTimeout(function () {
+    setTimeout(function() {
         console.log('three finish');
         dtd.reject();
     }, 10000);
     return dtd;
 }();
-waiter.when(first, second, three).done(function () {
+waiter.when(first, second, three).done(function() {
     console.log('success');
-}, function () {
+}, function() {
     console.log('success again');
-}).fail(function () {
+}).fail(function() {
     console.log('fail');
 });
 //长轮询
 (function getAjaxData() {
     var fn = arguments.callee;
-    setTimeout(function () {
-        $.get('test.php', function () {
+    setTimeout(function() {
+        $.get('test.php', function() {
             console.log('轮询一次');
             fn();
         });
@@ -2826,7 +2820,7 @@ waiter.when(first, second, three).done(function () {
  * @bref:实现模块开发中对模块的立即引用。依赖模块必须提前加载好
  *************************************/
 var F = F || {};
-F.define = function (str, fn) {
+F.define = function(str, fn) {
     //str--模块路由，fn--模块方法
     var parts = str.split('.'),
         old = parent = this, //old--祖父模块，parent--父模块
@@ -2853,9 +2847,9 @@ F.define = function (str, fn) {
 };
 //创建模块
 F.define（ 'string',
-    function () {
+    function() {
         return {
-            trim: function () {
+            trim: function() {
                 return str.replace(/^\s+|\s+$/g, '');
             }
         }
@@ -2863,12 +2857,12 @@ F.define（ 'string',
 F.string.trim('   测试   ');
 
 F.define（ 'dom',
-    function () {
-        var $ = function (id) {
+    function() {
+        var $ = function(id) {
             $.dom = document.getElementById(id);
             return $;
         }
-        $.html = function (html) {
+        $.html = function(html) {
             if (html) {
                 this.dom.innerHTML = html;
                 return this;
@@ -2883,8 +2877,8 @@ F.dom('test').html(); //<div id ="test">test</div>
 
 F.define('dom.addClass');
 
-F.dom.addClass = function (type, fn) {
-    return function (className) {
+F.dom.addClass = function(type, fn) {
+    return function(className) {
         if (!~this.dom.className.indexOf(className)) {
             this.dom.className += ' ' + className;
         }
@@ -2892,7 +2886,7 @@ F.dom.addClass = function (type, fn) {
 }();
 F.dom('test').addClass('test'); //<div id ="test" class="test">test</div>
 //模块调用方法
-F.module = function () {
+F.module = function() {
     var args = [].slice.call(arguments),
         fn = args.pop(),
         parts = args[0] && args[0] instanceof Array ? args[0] : args, //获取依赖模块
@@ -2920,11 +2914,11 @@ F.module = function () {
     fn.apply(null, modules);
 
 };
-F.module(['dom', document], function (dom, doc) {
+F.module(['dom', document], function(dom, doc) {
     dom('test').html('new add');
     doc.body.style.background = 'red';
 });
-F.module(['dom', 'string.trim'], function (dom, trim) {
+F.module(['dom', 'string.trim'], function(dom, trim) {
     var html = dom('test').html();
     var str = trim(html);
     console.log(str);
@@ -2934,9 +2928,9 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
  * @bref:实现模块开发中对模块加载完成后的引用。待模块加载完成后，执行回调。
  *************************************/
 //1，创建模块管理器F
-~(function (F) {
+~(function(F) {
     var moduleCache = {},
-        setModule = function (moduleName, params, callback) {
+        setModule = function(moduleName, params, callback) {
             //moduleName--模块id，params--依赖模块，callback--构造函数
 
             var _module, fn;
@@ -2954,7 +2948,7 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
             }
 
         },
-        loadModule = function (moduleName, callback) {
+        loadModule = function(moduleName, callback) {
             var _module;
             if (moduleCache[moduleName]) { //如果依赖模块被要求加载过
                 _module = moduleCache[moduleName]; //获取该模块信息
@@ -2976,10 +2970,10 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
             }
 
         },
-        getUlr = function (moduleName) { //拼接完整的文件路径字符串
+        getUlr = function(moduleName) { //拼接完整的文件路径字符串
             return String().replace(/\.js$/g, '') + '.js';
         },
-        loadScript = function (src) { //加载脚本文件
+        loadScript = function(src) { //加载脚本文件
             var _script = document.createElement('script');
             _script.type = 'text/JavaScript';
             _script.charSet = 'UTF-8';
@@ -2989,7 +2983,7 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
 
         };
 
-    F.module = function (url, modDeps, modCallback) {
+    F.module = function(url, modDeps, modCallback) {
         //url--模块url，modDeps--依赖模块，modCallback--模块主函数
         var args = [].slice.call(arguments),
             callback = args.pop(),
@@ -3002,10 +2996,10 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
         if (len) { //存在依赖模块
             while (i < len) {
 
-                (function (i) {
+                (function(i) {
                     depsCount++;
                     //异步加载依赖模块
-                    loadModule(deps[i], function (mod) {
+                    loadModule(deps[i], function(mod) {
                         params[i] = mod;
                         depsCount--;
                         if (depsCount === 0) {
@@ -3021,16 +3015,16 @@ F.module(['dom', 'string.trim'], function (dom, trim) {
         }
     };
 
-})((function () {
+})((function() {
     return window.F = {};
 })());
 //练习
-F.module('lib/dom', function () {
+F.module('lib/dom', function() {
     return {
-        g: function (id) {
+        g: function(id) {
             return document.getElementById(id);
         },
-        html: function (id, html) {
+        html: function(id, html) {
             if (html) {
                 this.g(id).innerHTML = html;
             } else {
@@ -3039,16 +3033,16 @@ F.module('lib/dom', function () {
         }
     }
 });
-F.module('lib/event', ['lib/dom'], function (dom) {
+F.module('lib/event', ['lib/dom'], function(dom) {
     var events = {
-        on: function (id, type, fn) {
+        on: function(id, type, fn) {
             dom.g(id)['on' + type] = fn;
         }
     };
     return events;
 });
-F.module('lib/event', 'lib/dom', function (events, dom) {
-    events.on('demo', 'click', function () {
+F.module('lib/event', 'lib/dom', function(events, dom) {
+    events.on('demo', 'click', function() {
         dom.html('demo', 'success');
     });
 });
@@ -3059,8 +3053,8 @@ F.module('lib/event', 'lib/dom', function (events, dom) {
  * 针对部件开发，最终组合成完整页面
  *************************************/
 
-F.module('lib/template', function () {
-    var _TplEngine = function (str, data) { //模板引擎
+F.module('lib/template', function() {
+    var _TplEngine = function(str, data) { //模板引擎
             if (data instanceof Array) {
                 var html = '',
                     i = 0,
@@ -3073,7 +3067,7 @@ F.module('lib/template', function () {
                 return _getTpl(str)(data);
             }
         },
-        _getTpl = function (str) { //获取模板
+        _getTpl = function(str) { //获取模板
             //str==模块id，模块字符串
             var ele = document.getElementById(str);
             if (ele) {
@@ -3083,7 +3077,7 @@ F.module('lib/template', function () {
                 return _compileTpl(str); //编译模板
             }
         },
-        _dealTpl = function (str) {
+        _dealTpl = function(str) {
             //模板形式：<a>{%=test%}</a>
             //处理后：template_array.push('<a>',typeof(test)==='undefined'?'':test,'</a>');
             var _left = "{%"; //左分隔符
@@ -3096,7 +3090,7 @@ F.module('lib/template', function () {
                 .replace(new RegExp(_right, 'g'), "template_array.push('");
 
         }, //处理模板
-        _compileTpl = function (str) { //编译执行
+        _compileTpl = function(str) { //编译执行
             var fnBody = "" +
                 "var template_array=[];\n" +
                 "var fn=(functon(data){\n" +
@@ -3131,19 +3125,19 @@ id = "demo_script" >
 **/
 //数据：
 data = {
-    tagCloud: [
+    tagCloud: [{
+            is_selected: true,
+            title: '这是一本设计书',
+            text: '设计模式'
+        },
         {
             is_selected: true,
             title: '这是一本设计书',
             text: '设计模式'
-         },
-        {
-            is_selected: true,
-            title: '这是一本设计书',
-            text: '设计模式'
-         }]
+        }
+    ]
 };
-F.module(['lib/template', 'lib/dom'], function (template, dom) {
+F.module(['lib/template', 'lib/dom'], function(template, dom) {
     var str = template('demo_script', data);
     dom.html('test', str);
 });
@@ -3153,32 +3147,32 @@ F.module(['lib/template', 'lib/dom'], function (template, dom) {
  * 
  *************************************/
 
-$(function () {
+$(function() {
     var MVC = MVC || {};
-    MVC.model = function () { //数据层
+    MVC.model = function() { //数据层
         var M = {};
         M.data = {
             slidebar: [{
 
-                }, {
+            }, {
 
-                }]
+            }]
         };
         M.conf = {
             slidebarCloseAnimate: false; //侧边栏动画配置数据
         };
         return {
-            getData: function (m) {
+            getData: function(m) {
                 return M.data[m];
             },
-            getConf: function (c) {
+            getConf: function(c) {
                 return M.conf[c];
             },
-            setData: function (m, v) {
+            setData: function(m, v) {
                 M.data[m] = v;
                 return this;
             },
-            setConf: function (c, v) {
+            setConf: function(c, v) {
                 M.conf[c] = v;
                 return this;
             }
@@ -3186,22 +3180,22 @@ $(function () {
 
         }
     }();
-    MVC.view = function () { //视图层
+    MVC.view = function() { //视图层
         var M = MVC.model;
         var V = {
-            createSlideBar: function () {
+            createSlideBar: function() {
 
             }
         };
-        return function (v) {
+        return function(v) {
             V[v]();
         }
     }();
-    MVC.ctrl = function () { //控制器
+    MVC.ctrl = function() { //控制器
         var M = MVC.model;
         var V = MVC.view;
         var C = {
-            initSlideBar: function () {
+            initSlideBar: function() {
 
             }
         };
@@ -3219,36 +3213,36 @@ $(function () {
  * @bref:p-管理器（presenter）view层不调用model，所有的交互都发生在p层。
  * 
  *************************************/
-~(function (window) {
-    var MVP = function (modName, pst, data) { //mvp构造函数
+~(function(window) {
+    var MVP = function(modName, pst, data) { //mvp构造函数
         MVP.model.setData(modName, data);
         MVP.presenter.add(modName, pst);
     };
-    MVP.model = function () {
+    MVP.model = function() {
         var M = {};
         M.data = {
             slidebar: [{
 
-                }, {
+            }, {
 
-                }]
+            }]
         };
         M.conf = {
             slidebarCloseAnimate: false; //侧边栏动画配置数据
         };
         return {
-            getData: function (m) {
+            getData: function(m) {
                 return M.data[m];
             },
-            getConf: function (c) {
+            getConf: function(c) {
                 return M.conf[c];
             },
-            setData: function (m, v) {
+            setData: function(m, v) {
                 //m-模块名称，v-模板数据
                 M.data[m] = v;
                 return v;
             },
-            setConf: function (c, v) {
+            setConf: function(c, v) {
                 M.conf[c] = v;
                 return v;
             }
@@ -3256,12 +3250,12 @@ $(function () {
 
         }
     }();
-    MVP.view = function () { //分层模板：>--上下级,+--兄弟级,
+    MVP.view = function() { //分层模板：>--上下级,+--兄弟级,
         var REPLACEKEY = '_REPLACEKEY_';
 
         function getHTMl(str, type) { //获取完整元素模板，模板：{#内容#}
             //str--元素字符串，type--元素类型
-            return str.replace(/^(\w+)([^\{\}]*)?(\{([@\w]+)\})?(.*?)$/, function (match, $1, $2, $3, $4, $5) {
+            return str.replace(/^(\w+)([^\{\}]*)?(\{([@\w]+)\})?(.*?)$/, function(match, $1, $2, $3, $4, $5) {
                     $2 = $2 || ''; //元素属性容错处理
                     $3 = $3 || ''; //{元素内容}参数容错处理
                     $4 = $4 || ''; //元素内容参数容错处理
@@ -3275,7 +3269,7 @@ $(function () {
                 })
                 .replace(/#([@\-\w]+)/g, 'id="$1"') //处理特殊标识#-id属性
                 .replace(/\.([@\-\s\w]+])/g, 'class="$1"') //处理特殊标识.-class属性
-                .replace(/\[(.+)\]/g, function (match, key) { //处理其他属性组
+                .replace(/\[(.+)\]/g, function(match, key) { //处理其他属性组
                     var a = key.replace(/'||"/g, '').split(' '),
                         h = '';
                     for (var j = 0, len = a.length; j < len; j++) {
@@ -3298,17 +3292,17 @@ $(function () {
             //str--原始字符串，rep--兄弟元素模板或者子元素模板
             return str.replace(new RegExp(REPLACEKEY, 'g'), rep);
         }
-        return function (str) { //模板解析器
+        return function(str) { //模板解析器
             var part = str.replace(/^\s+|\s+$/g, '')
                 .replace(/^\s+(>)\s+$/g, '$1')
                 .split('>'),
                 html = REPLACEKEY, //模板视图跟模板
                 item, //同层元素
                 nodeTpl; //同级模板
-            eachArray(part, function (partIndex, partValue, partLen) {
+            eachArray(part, function(partIndex, partValue, partLen) {
                 item = partValue.split('+'), //为同级元素分组
                     nodeTpl = REPLACEKEY;
-                eachArray(item, function (itemIndex, itemValue, itemLen) {
+                eachArray(item, function(itemIndex, itemValue, itemLen) {
                     nodeTpl = formateItem(nodeTpl, getHTMl(itemValue, itemIndex === itemLen - 1 ? (partIndex === partLen - 1 ? '' : 'in') : 'add'));
                 });
                 html = formateItem(html, nodeTpl); //用渲染子层级得到的模板去渲染父层级模板
@@ -3318,17 +3312,17 @@ $(function () {
         }
 
     }();
-    MVP.presenter = function () {
+    MVP.presenter = function() {
         var V = MVP.view();
         var M = MVP.model();
         var C = {};
         return {
-            init: function () {
+            init: function() {
                 for (var i in C) {
                     C[i] && C[i](M, V, i);
                 }
             },
-            add: function (modName, pst) { //添加管理器模块
+            add: function(modName, pst) { //添加管理器模块
                 //pst--模块管理器
                 C[modName] = pst;
                 return this;
@@ -3341,8 +3335,8 @@ $(function () {
 })(window);
 //案例
 //模块开发中的应用
-F.module('lib/MVP', function () {
-    var MVP = function (modName, pst, data) { //mvp构造函数
+F.module('lib/MVP', function() {
+    var MVP = function(modName, pst, data) { //mvp构造函数
         MVP.model.setData(modName, data);
         MVP.presenter.add(modName, pst);
     };
@@ -3350,9 +3344,9 @@ F.module('lib/MVP', function () {
     return MVP;
 });
 //添加一个模块
-F.module('lib/MVP', 'lib/A', function (MVP, $) {
-    $(function () {
-        MVP('sites', function (M, V, modName) {
+F.module('lib/MVP', 'lib/A', function(MVP, $) {
+    $(function() {
+        MVP('sites', function(M, V, modName) {
             //渲染模板<li><a href="#">{#text#}</a></li>
             var tpl = V('li>a[herf="#"]{#text#}');
             $.create('ul', {
@@ -3362,13 +3356,13 @@ F.module('lib/MVP', 'lib/A', function (MVP, $) {
                 .appendTo('#container');
 
         }, [
-                    '聚划算',
-                    '1号店'
-                ]);
+            '聚划算',
+            '1号店'
+        ]);
     });
 });
 //mvp入口
-$(function () {
+$(function() {
     MVP.init();
 });
 /*************************************
@@ -3382,15 +3376,15 @@ $(function () {
 <div class="second" data-bind="type:'slider,data:demo2"></div>
 <div class="third" data-bind="type:'progressbar,data:demo3"></div>
 **/
-~(function () {
+~(function() {
     var window = this || (0, eval)('this'); //在闭包中获取全局变量
-    var FONTSIZE = function () { //获取页面字体大小
+    var FONTSIZE = function() { //获取页面字体大小
         return parseInt(document.body.currentStyle ? document.body.currentStyle[fontSize] : getComputedStyle(document.body, false)['fontSize']);
 
     }();
-    var VM = function () {
+    var VM = function() {
         var Method = {
-            progressBar: function (dom, data) {
+            progressBar: function(dom, data) {
                 var progress = document.createElement('div'),
                     param = data.data; //{position:100}
                 progress.style.width = (param.position || 100) + '%';
@@ -3407,7 +3401,7 @@ $(function () {
             var data = dom.getAttribute('data-bind');
             return !!data && (new Function("return ({" + data + "})"))(); //将自定义属性转化为对象
         }
-        return function () { //组件实例化方法
+        return function() { //组件实例化方法
             var doms = document.body.getElementsByTagName('*'),
                 ctx = null;
             for (var i = 0; i < doms.length; i++) {
@@ -3430,7 +3424,7 @@ var demo1 = {
     demo3 = {
         position: 50
     };
-window.onload = function () {
+window.onload = function() {
     VM();
 };
 /**
