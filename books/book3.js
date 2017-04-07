@@ -270,7 +270,7 @@ oSimpleRemote.buttonUndoWasPressed();
 
 
 /*************************************
- * 2,Composite（组合模式）
+ * 4,Composite（组合模式）
  *@bref：将对象组合成树形结构以表示“部分-整体”的层次结构，组合模式使得用户对单个对象和组合对象的使用具有一致性。
  * 掌握组合模式的重点是要理解清楚 “部分/整体” 还有 ”单个对象“ 与 "组合对象" 的含义。。
  * 应用如：系统目录结构，网站导航结构等层次结构。打开脑洞，自由发散。
@@ -534,7 +534,7 @@ VM16886:49 Pasta: Spaghetti with Marinara Sauce, and a slice of sourdough bread,
 
 
 /*************************************
- * 3,Compound（复合模式）
+ * 5,Compound（复合模式）
  *@bref：类似组合模式。
  * 三个示例演示了这个过程：单个鸭子--》鸭子工厂--》鸭子集群--》带观察者的鸭子集群。
  * 应用如：层次复杂的文件系统，树结构等。打开脑洞，自由发散。
@@ -1027,7 +1027,7 @@ console.log(QuackCounter.getQuacks());
 /**----------------------------end-------------------------------**/
 
 /*************************************
- * 5,Decorator（装饰器模式）
+ * 6,Decorator（装饰器模式）
  *@bref：允许向一个现有的对象添加新的功能，同时又不改变其结构。这种类型的设计模式属于结构型模式，它是作为现有的类的一个包装。
  * 动态地给一个对象添加一些额外的职责。就增加功能来说，装饰器模式相比生成子类更为灵活。
  * 示例是搭配一杯用户需要的咖啡：浓咖啡+奶牛泡沫+摩卡。栗子有点简单，其实功能很强大。
@@ -1124,7 +1124,7 @@ console.log(oEspressoWithMochaAndWhip.cost());
 
 
 /*************************************
- * 6,Facade（外观模式）
+ * 7,Facade（外观模式）
  *@bref：隐藏系统的复杂性，并向客户端提供了一个客户端可以访问系统的接口。这种类型的设计模式属于结构型模式，它向现有的系统添加一个接口，来隐藏系统的复杂性。
  * 现实中，如操作系统，电脑，手电筒等设备，我们只需按开关就行，不需要关心开关机细节。
  * 示例，展示的是一个家庭剧院，包括灯光，放映机，幕布，电影等过程，只需要调用一个方法，一切按流程自动化完成。
@@ -1616,11 +1616,11 @@ VM7709:139 DvdPlayer is off!
 ---------------------------end-----------------------------*/
 
 /*************************************
- * 7,Factory（工厂模式）
+ * 8,Factory（工厂模式）
  *@bref：定义一个创建对象的接口，让其子类自己决定实例化哪一个工厂类，工厂模式使其创建过程延迟到子类进行。
  * 主要解决接口选择的问题
  * 示例是一个披萨工厂。
- * 应用如：等。打开脑洞，自由发散。
+ * 应用如：常见与java大型项目中，商城项目，外卖项目，超市等品类繁多的项目。打开脑洞，自由发散。
  *************************************/
 
 
@@ -1939,7 +1939,466 @@ VM13946:158 Place pizza in official PizzaStore box
 
 
 /*************************************
- * 7,Factory（工厂模式）
+ * 9,Iterator（迭代器模式）
+ * @bref：属于行为型模式。用于顺序访问对象的元素，不需要知道对象的底层表示。
+ * es6中引入了Iterator类，有三类数据结构原生具备Iterator接口：数组、某些类似数组的对象、Set和Map结构。对象需要自己在
+ * Symbol.iterator属性上面部署。
+ * 迭代是每种语言都具备的特性。es6有如下几种常用的迭代方式和方法：while，for...of,for,for...in,Iterator,forEach等。
+ * 示例是一个用户的点菜单。餐厅根据用户的需要打印一张点菜详情。常见于kfc，家常菜等饭店。
+ * 应用很广泛。主要用于一些查询类的系统和站点，如餐厅，图书馆，账户查询等，打开脑洞，自由发散。
+ *************************************/
+
+//MenuItem.js
+class MenuItem {
+    constructor(name, description, isVegetarian, price) {
+        this.name = name;
+        this.description = description;
+        this._isVegetarian = isVegetarian;
+        this.price = price;
+    }
+
+    getName() {
+        return this.name;
+    }
+
+    getDescription() {
+        return this.description;
+    }
+
+    getPrice() {
+        return this.price;
+    }
+
+    isVegetarian() {
+        return this._isVegetarian;
+    }
+}
+
+//export default MenuItem;
+
+//Menu.js
+class Menu {
+    constructor() {
+        this.menuItems = [];
+        this.length = 0;
+    }
+
+    addItem(menuItem) {
+        this.menuItems.push(menuItem);
+        this.length++;
+    }
+
+    getMenuItems() {
+        return this.menuItems;
+    }
+}
+
+//export default Menu;
+
+//Iterator.js
+class Iterator {
+    constructor(menuItems) {
+        this.iterator = menuItems[Symbol.iterator]();
+        this.keys = Object.keys(menuItems);
+        this.length = this.keys.length;
+    }
+
+    next() {
+        return this.iterator.next();
+    }
+
+    remove(key) {
+        delete this.menuItems[key];
+        this.keys = Object.keys(this.menuItems);
+        this.length = this.keys.length;
+    }
+}
+
+//export default Iterator;
+
+//Mattress.js
+function printMenu(iterator) { //垫片，辅助类
+    let menuItem = iterator.next();
+    while (menuItem.value) {
+        console.log(menuItem.value.getName() + ": " + menuItem.value.getDescription() + ", " + menuItem.value.getPrice() + "eur.");
+        menuItem = iterator.next();
+    }
+}
+
+class Mattress {
+    constructor(menus) {
+        this.menus = menus;
+    }
+    printMenu() {
+        this.menus.forEach(function(menu) {
+            let iterator = menu.createIterator();
+            printMenu(iterator);
+        });
+    }
+}
+
+//export default Mattress;
+
+//PancakeHouseMenu.js
+// import Menu from '../../common/Menu';
+// import MenuItem from '../../common/MenuItem';
+// import Iterator from '../../common/Iterator';
+
+class PancakeHouseMenu extends Menu { //农家饼
+    constructor() {
+        super();
+        this.addItem("K&B's Pancake Breakfast", "Pancakes with scrambled eggs, and toast", true, 2.99);
+        this.addItem("Regular Pancake Breakfast", "Pancakes with fried eggs, sausage", false, 2.99);
+        this.addItem("Blueberry Pancakes", "Pancakes made with fresh blueberries", true, 3.49);
+        this.addItem("Waffles", "Waffles, with your choice of blueberries or strawberries", true, 3.59);
+    }
+    createIterator() {
+        return new Iterator(this.menuItems);
+    }
+    addItem(name, description, isVegetarian, price) {
+        super.addItem(new MenuItem(name, description, isVegetarian, price));
+    }
+}
+
+//export default PancakeHouseMenu;
+
+//LunchMenu.js
+// import Menu from '../../common/Menu';
+// import MenuItem from '../../common/MenuItem';
+// import Iterator from '../../common/Iterator';
+
+const MAX_ITEMS = 6;
+class LunchMenu extends Menu {
+    constructor() {
+        super();
+        this.addItem("Vegetarian BLT", "(Fakin') Bacon with lettuce and tomato on whole wheat", true, 2.99);
+        this.addItem("BLT", "Bacon with lettuce and tomato on whole wheat", false, 2.99);
+        this.addItem("Soup of the day", "Soup of the day, with a side of potato salad", false, 3.29);
+        this.addItem("Hotdog", "A hotdog with saurkraut, relish, onions, topped with cheese", false, 3.05);
+    }
+    createIterator() {
+        return new Iterator(this.menuItems);
+    }
+    addItem(name, description, isVegetarian, price) {
+        if (this.length === MAX_ITEMS) {
+            super.addItem(new MenuItem(name, description, isVegetarian, price));
+        }
+    }
+}
+
+//export default LunchMenu;
+
+//CafeMenu.js
+// import Menu from '../../common/Menu';
+// import MenuItem from '../../common/MenuItem';
+// import Iterator from '../../common/Iterator';
+
+class CafeMenu extends Menu {
+    constructor() {
+        super();
+        this.addItem("Express", "Coffee from machine", false, 0.99);
+        this.addItem("Long with water", "Coffee with a lot of water", false, 1.20);
+        this.addItem("On the rocks", "Coffee with ice", false, 2.00);
+    }
+    createIterator() {
+        return new Iterator(this.menuItems);
+    }
+    addItem(name, description, isVegetarian, price) {
+        super.addItem(new MenuItem(name, description, isVegetarian, price));
+    }
+}
+
+//export default CafeMenu;
+
+//main.js
+// import Mattress from './Mattress';
+// import PancakeHouseMenu from './PancakeHouseMenu';
+// import LunchMenu from './LunchMenu';
+// import CafeMenu from './CafeMenu';
+
+var oMattress = new Mattress([new PancakeHouseMenu(), new LunchMenu(), new CafeMenu()]);
+console.log("---------------------------------------------");
+oMattress.printMenu();
+console.log("---------------------------------------------");
+
+//运行结果
+/**-----------------------start------------------------------
+
+---------------------------------------------
+VM18774:72 K&B's Pancake Breakfast: Pancakes with scrambled eggs, and toast, 2.99eur.
+VM18774:72 Regular Pancake Breakfast: Pancakes with fried eggs, sausage, 2.99eur.
+VM18774:72 Blueberry Pancakes: Pancakes made with fresh blueberries, 3.49eur.
+VM18774:72 Waffles: Waffles, with your choice of blueberries or strawberries, 3.59eur.
+VM18774:72 Express: Coffee from machine, 0.99eur.
+VM18774:72 Long with water: Coffee with a lot of water, 1.2eur.
+VM18774:72 On the rocks: Coffee with ice, 2eur.
+---------------------------------------------
+--中文log：
+- ---------------------------------------------
+- K＆B的煎饼早餐：煎蛋与炒鸡蛋，烤面包，2.99eur。
+- 定期煎饼早餐：煎蛋，煎鸡蛋，香肠，2.99eur。
+- 蓝莓煎饼：用新鲜蓝莓制成的薄煎饼，3.49eur。
+- 华夫饼干：华夫饼，您可以选择蓝莓或草莓，3.59eur。
+- 快递：咖啡机，0.99eur。
+- 长水：咖啡用大量的水，1.2eur。
+- 加冰的：咖啡与冰，2eur。
+- ---------------------------------------------
+---------------------------end-----------------------------*/
+
+
+
+/*************************************
+ * 10,Lazy（懒、惰性加载模式）
+ * @bref：也叫延迟加载。大型系统中，单次加载大量数据需要很长时间，页面数据太多，导致内存不足，浏览器也会假死。
+ * 通过数据分批次分层次加载，页面滚动加载，逐步展示内容等惰性加载模式，有效的解决了这个问题。
+ * 示例是一个动态，分批次修改dom元素内容的栗子。使用了es的模板字符串，很实用。
+ * 
+ * 应用如：滚动加载，分批次查询，分层次和优先级加载，大量图片延迟加载等。打开脑洞，自由发散。
+ *************************************/
+
+
+//Lazy.js
+class Lazy {
+    constructor(container, text, date) {
+        this.container = container;
+        this.update(text, date);
+    }
+
+    static addZero(time) {
+        return time < 10 ? '0' + time : time;
+    }
+
+    getFormattedTime(date) {
+        return Lazy.addZero(date.getHours()) + ":" + Lazy.addZero(date.getMinutes()) + ":" + Lazy.addZero(date.getSeconds());
+    }
+
+    update(text, date) {
+        this.container.innerHTML = `
+            <div>
+                <div>
+                Not changed:
+                <span>
+                    ${this.getFormattedTime(new Date())}
+                </span>
+                </div>
+                <span class="text">
+                ${text}
+                </span>
+                <span class="time">
+                ${this.getFormattedTime(date)}
+                </span>
+            </div>
+            `;
+        this.update = (text, date) => {
+            var textNode = this.container.querySelector('.text');
+            var timeNode = this.container.querySelector('.time');
+            textNode.innerHTML = text;
+            timeNode.innerHTML = this.getFormattedTime(date);
+        };
+    }
+}
+
+//export default Lazy;
+
+//main.js
+//import Lazy from './Lazy';
+
+let counter = 0;
+const elements = ['Zero', 'First', 'Second', 'Third', 'Fourth'];
+
+let timeout = null;
+let lazy = new Lazy(document.getElementById('test'), elements[counter], new Date());
+
+timeout = setInterval(function() {
+    if (counter === 4) {
+        clearInterval(timeout);
+    }
+    lazy.update(elements[counter++], new Date());
+}, 500);
+
+//运行结果
+/**-----------------------start------------------------------
+Not changed: 10:25:15
+Fourth 10:25:18
+
+
+---------------------------end-----------------------------*/
+
+
+
+/*************************************
+ * 11,Module（模块模式）
+ *@bref：能够帮助我们清晰地分离和组织项目中的代码单元。
+ * js中实现模块的方法:1》对象字面量表示法，如:const obj={}. 2》es6中的Module模式,如:import,export 
+ * 3》AMD模式,CMD模式如：require.js，seajs 4》CommonJS模块,如nodejs 5》es6中的class
+ * 文献：https://addyosmani.com/writing-modular-js/和http://blog.csdn.net/vuturn/article/details/51970567
+ * 
+ * 
+ * 
+ * 应用广泛。打开脑洞，自由发散。
+ *************************************/
+
+//ModuleRevealed.js
+export default (function(win) {
+    //在js中，Module模式用于进一步模拟类的概念，通过这种方式，能够使一个单独的对象用于公有/私有方法和变量，
+    //从而屏蔽来自全局作用域的特殊部分。产生的结果是：函数名与在页面上其他脚本定义的函数冲突的可能性降低。
+    var oContainer = null;
+
+    function setContainer(oCont) {
+        oContainer = oCont;
+    }
+
+    function addZero(nTime) {
+        return nTime < 10 ? '0' + nTime : nTime;
+    }
+
+    function getFormattedTime(dTime) {
+        return addZero(dTime.getHours()) + ":" + addZero(dTime.getMinutes()) + ":" + addZero(dTime.getSeconds());
+    }
+
+    function insertTestModule() {
+        oContainer.innerHTML = 'Test Module: ' + getFormattedTime(new Date());
+    }
+
+    function removeContent() {
+        oContainer.innerHTML = '';
+    }
+
+    return {
+        init: function(oContainer) {
+            setContainer(oContainer);
+            insertTestModule();
+        },
+        destroy: function() {
+            removeContent();
+        }
+    };
+}());
+//Module.js
+function Module(container) {
+    return new class {
+        get container() {
+            return container;
+        }
+
+        init() {
+            this.container.innerHTML = 'Test module';
+            this.compeled();
+            this.initData();
+            this.bindEvent();
+
+        }
+        compeled() {
+            console.log('compeled');
+        }
+        initData() {
+            console.log('initData');
+        }
+        bindEvent() {
+            console.log('initEvent');
+        }
+        destroy() {
+            this.container.innerHTML = '';
+            delete this.container;
+        }
+    }
+}
+
+//export default Module;
+
+//main.js
+//import Module from './Module';
+//import ModuleRevealed from './ModuleRevealed';
+
+
+var oModule = Module(document.getElementById('test'));
+oModule.init();
+
+ModuleRevealed.init(document.getElementById('test2'));
+//运行结果
+/**-----------------------start------------------------------
+---------------------------end-----------------------------*/
+
+
+
+/*************************************
+ * 12,Multi-Inheritance（多重继承模式）
+ *@bref：。
+ * 。
+ * 应用如：等。打开脑洞，自由发散。
+ *************************************/
+
+//Quackable.js
+const Quackable = Sup => class extends Sup {
+    quack() {
+        console.log('Quack!');
+    }
+};
+
+//export default Quackable;
+
+//Flyable.js
+const Flyable = Sup => class extends Sup {
+    fly() {
+        console.log('Flap, Flap!');
+    }
+};
+
+//export default Flyable;
+
+//Duck.js
+// import Flyable from './Flyable';
+// import Quackable from './Quackable';
+
+class Duck extends Quackable(Flyable(Object)) {
+    swim() {
+        console.log('Chop!');
+    }
+}
+
+//export default Duck;
+
+//man.js
+//import Duck from './Duck';
+
+var duck = new Duck();
+
+duck.fly();
+duck.quack();
+duck.swim();
+
+//运行结果
+/**-----------------------start------------------------------
+duck.fly();
+duck.quack();
+duck.swim();
+VM28442:13 Flap, Flap!
+VM28442:4 Quack!
+VM28442:25 Chop!
+
+
+---------------------------end-----------------------------*/
+
+
+
+
+/*************************************
+ * 13,Factory（工厂模式）
+ *@bref：。
+ * 。
+ * 应用如：等。打开脑洞，自由发散。
+ *************************************/
+
+//运行结果
+/**-----------------------start------------------------------
+
+
+
+---------------------------end-----------------------------*/
+
+
+/*************************************
+ * 13,Factory（工厂模式）
  *@bref：。
  * 。
  * 应用如：等。打开脑洞，自由发散。
@@ -1954,8 +2413,11 @@ VM13946:158 Place pizza in official PizzaStore box
 
 
 
+
+
+
 /*************************************
- * 7,Factory（工厂模式）
+ * 13,Factory（工厂模式）
  *@bref：。
  * 。
  * 应用如：等。打开脑洞，自由发散。
