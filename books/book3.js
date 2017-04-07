@@ -3044,15 +3044,73 @@ Enter find PublicLibrary proxy
 
 
 /*************************************
- * 16,Nullify（工厂模式）
- *@bref：。
- * 。
+ * 16,Singleton Pattern（单例模式）
+ * @bref：这种模式涉及到一个单一的类，该类负责创建自己的对象，同时确保只有单个对象被创建。
+ * 这个类提供了一种访问其唯一的对象的方式，可以直接访问，不需要实例化该类的对象。
+ * 
+ * js中的单例模式，除了function，还有obj的。如对象字面量和命名空间。
+ * 
  * 应用如：等。打开脑洞，自由发散。
  *************************************/
 
+
+//Singleton.js
+export default function Singleton(instance) {
+    if (!Singleton.getInstance) {
+        Singleton.getInstance = function() {
+            return instance;
+        };
+        instance = new Singleton;
+    }
+    this.toString = function() {
+        return "[object Singleton]";
+    };
+}(new Singleton);
+/** 或者
+ let instance = null;
+
+class Singleton {
+    static get instance() {
+        return instance;
+    }
+
+    static set instance(_instance) {
+        instance = _instance;
+    }
+
+    constructor() {
+        
+        if (Singleton.instance === null) {
+            Singleton.instance = this;
+        }
+        return Singleton.instance;
+    }
+
+    toString() {
+        return "[object Singleton]";
+    }
+
+    getInstance() {
+        return new Singleton();
+    }
+}
+
+//export default Singleton;
+ */
+
+
+//main.js
+//import Singleton from './Singleton';
+
+var oSingle1 = Singleton;
+var oSingle2 = Singleton;
+console.log(Singleton.toString());
+console.log("oSingle1 is the same instance that oSingle2? " + (oSingle1 === oSingle2));
+
 //运行结果
 /**-----------------------start------------------------------
-
+- [object Singleton]
+- oSingle1 is the same instance that oSingle2? true
 
 
 ---------------------------end-----------------------------*/
