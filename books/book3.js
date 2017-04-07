@@ -2323,9 +2323,11 @@ ModuleRevealed.init(document.getElementById('test2'));
 
 /*************************************
  * 12,Multi-Inheritance（多重继承模式）
- *@bref：。
- * 。
- * 应用如：等。打开脑洞，自由发散。
+ * @bref：继承是指一个对象直接使用另一对象的属性和方法。
+ * 下面这种方式实现了多重继承。可以无限嵌套。
+ * 继承和组合，就如父与子，兄与弟一样，各有特点吧。
+ * vue和react都有类似的mixin(组合)模式。
+ * 应用广泛。打开脑洞，自由发散。
  *************************************/
 
 //Quackable.js
@@ -2350,7 +2352,7 @@ const Flyable = Sup => class extends Sup {
 // import Flyable from './Flyable';
 // import Quackable from './Quackable';
 
-class Duck extends Quackable(Flyable(Object)) {
+class Duck extends Quackable(Flyable(Object)) { //多继承
     swim() {
         console.log('Chop!');
     }
@@ -2369,21 +2371,680 @@ duck.swim();
 
 //运行结果
 /**-----------------------start------------------------------
-duck.fly();
-duck.quack();
-duck.swim();
+
 VM28442:13 Flap, Flap!
 VM28442:4 Quack!
 VM28442:25 Chop!
+---------------------------end-----------------------------*/
 
+
+/*************************************
+ * 13,MVC（MVC模式）
+ * @bref：即 Model-View-Controller（模型-视图-控制器）。用于应用程序的分层开发。
+ * Model（模型） - 模型代表一个存取数据的对象。包括页面的请求数据，页面需要的变量等。
+ * View（视图） - 视图代表模型包含的数据的可视化。一般是页面展示层，多是dom操作。
+ * Controller（控制器） - 控制器作用于模型和视图上。它控制数据流向模型对象，并在数据变化时更新视图。它使视图与模型分离开。
+ * 主要处理一些逻辑控制和交互。
+ * 常用的MVC框架，最典型的是Backbone.js。
+ * 现代的es6，原生具有querySelectALl，promise，模板字符串，class，extend，import和export等能力,不用插件，独立完成MVC模式项目。
+ * 应用广泛。打开脑洞，自由发散。
+ *************************************/
+
+
+//jQuery.js
+//export default window.jQuery;;
+
+//ListView.js
+class ListView {
+    constructor(element) {
+        return element;
+    }
+}
+
+//export default ListView;
+
+//FakeAjaxCall.js
+//import $ from './jquery';
+
+$.ajax = function(config) {
+    return new Promise((resolve, reject) => {
+        switch (config.url) {
+            case "/todo-items/add":
+                resolve([{
+                        text: 'Test 1',
+                        done: false,
+                        id: 1
+                    },
+                    {
+                        text: 'Test 2',
+                        done: false,
+                        id: 2
+                    },
+                    {
+                        text: 'Test 3',
+                        done: true,
+                        id: 3
+                    }
+                ]);
+                break;
+            case "/todo-items":
+                resolve([{
+                        text: 'Test 1',
+                        done: false,
+                        id: 1
+                    },
+                    {
+                        text: 'Test 2',
+                        done: false,
+                        id: 2
+                    },
+                    {
+                        text: 'Test 3',
+                        done: true,
+                        id: 3
+                    }
+                ]);
+                break;
+            case "/todo-items/undo":
+                resolve([{
+                        text: 'Test 1',
+                        done: false,
+                        id: 1
+                    },
+                    {
+                        text: 'Test 2',
+                        done: false,
+                        id: 2
+                    },
+                    {
+                        text: 'Test 3',
+                        done: false,
+                        id: 3
+                    }
+                ]);
+                break;
+            case "/todo-items/complete":
+                resolve([{
+                        text: 'Test 1',
+                        done: true,
+                        id: 1
+                    },
+                    {
+                        text: 'Test 2',
+                        done: true,
+                        id: 2
+                    },
+                    {
+                        text: 'Test 3',
+                        done: true,
+                        id: 3
+                    }
+                ]);
+                break;
+        }
+    });
+};
+
+//export default $;
+
+//TodoModel.js
+//import $ from './FakeAjaxCall';
+
+class TodoModel {
+    constructor() {
+        this.items = [];
+    }
+
+    add(item) {
+        return new Promise((resolve, reject) => {
+            this.items.push({
+                text: item,
+                done: false,
+                id: this.items.length
+            });
+
+            $.ajax({
+                    url: '/todo-items/add',
+                    type: 'POST'
+                })
+                .then(
+                    data => {
+                        resolve(data);
+                    },
+                    xhr => {
+                        reject({ message: xhr.status + ": " + xhr.responseText });
+                    }
+                );
+        });
+    }
+
+    all() {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                    url: '/todo-items'
+                })
+                .then(
+                    data => {
+                        resolve(data);
+                    },
+                    xhr => {
+                        reject({ message: xhr.status + ": " + xhr.responseText });
+                    }
+                );
+        });
+    }
+
+    undoItem(id) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                    url: '/todo-items/undo',
+                    type: 'POST'
+                })
+                .then(
+                    data => {
+                        resolve(data);
+                    },
+                    xhr => {
+                        reject({ message: xhr.status + ": " + xhr.responseText });
+                    }
+                )
+        });
+    }
+
+    completeItem(id) {
+        return new Promise((resolve, reject) => {
+            $.ajax({
+                    url: '/todo-items/complete',
+                    type: 'POST'
+                })
+                .then(
+                    data => {
+                        resolve(data);
+                    },
+                    xhr => {
+                        reject({ message: xhr.status + ": " + xhr.responseText });
+                    }
+                )
+        });
+    }
+}
+
+//export default TodoModel;
+
+//ListController.js
+//import $ from './jquery';
+
+class ListController {
+    constructor(view, model) {
+        this.view = view;
+        this.model = model;
+    }
+
+    init() {
+        this.model
+            .all()
+            .then(
+                items => {
+                    let html = '';
+
+                    items.forEach((item, index) => {
+                        let className = item.done ? 'done' : 'todo';
+                        html += `<li class="${className}" id="item_${index}">${item.text}</li>`;
+                    });
+
+                    this.view.innerHTML = html;
+                    $(this.view).on('click', '.todo', event => {
+                        var element = event.target;
+                        this.model
+                            .completeItem(element.id)
+                            .then(
+                                () => {
+                                    element.className = 'done';
+                                }
+                            );
+                    }).on('click', '.done', event => {
+                        var element = event.target;
+                        this.model
+                            .undoItem(element.id)
+                            .then(() => {
+                                element.className = 'todo';
+                            })
+                    });
+                },
+                error => {
+                    this.handleError('Server failed to get todo items', error);
+                }
+            );
+    }
+
+    handleError(message) {
+        var className = 'error';
+        this.view.innerHTML += `<li class="${className}">${message}</li>`;
+    }
+}
+
+//export default ListController;
+
+//main.js
+// import ListView from './ListView';
+// import TodoModel from './TodoModel';
+// import ListController from './ListController';
+
+let oListView = new ListView(document.getElementById("results"));
+let oTodoModel = new TodoModel();
+let oListController = new ListController(oListView, oTodoModel);
+
+oListController.init();
+
+//运行结果
+/**-----------------------start------------------------------
+
+Test 1
+Test 2
+Test 3
+
+---------------------------end-----------------------------*/
+
+
+/*************************************
+ * 14,NameSpace（命名空间模式）
+ * @bref：命名空间可以被认为是唯一标识符下代码的逻辑分组。在JavaScript中，命名空间可以帮助我们防止与
+ * 全局命名空间下的其他对象或变量产生冲突。命名空间也有助于组织代码，有更强的可维护性和可读性.
+ * 常见的第三方库，如jquery，underscore，YUI，Dojo，window等。
+ * 
+ * 应用广泛。打开脑洞，自由发散。
+ *************************************/
+//App.js
+export default {};
+
+//Namespace.js
+import App from './App';
+
+export default (function(namespace) {
+    var Ajax = function() {
+        console.log('Ajax: Instanced!');
+    };
+    Ajax.prototype.setUp = function() {
+        console.log('Ajax: Setup!');
+        return this;
+    };
+    Ajax.prototype.call = function() {
+        console.log('Ajax: Call!');
+    };
+    var DOM = function() {
+        console.log('DOM: Instanced!');
+    };
+    DOM.prototype.byId = function(sId) {
+        console.log('DOM: ById ' + sId + '!')
+    };
+    namespace.DOM = new DOM();
+    namespace.Ajax = Ajax;
+    return namespace;
+}(App));
+
+//main.js
+import Namespace from './Namespace';
+
+Namespace.DOM.byId('test');
+
+let ajax = new Namespace.Ajax();
+ajax.setUp().call();
+
+//运行结果
+/**-----------------------start------------------------------
+- DOM: Instanced!
+- DOM: ById test!
+- Ajax: Instanced!
+- Ajax: Setup!
+- Ajax: Call!
+
+
+---------------------------end-----------------------------*/
+
+
+/*************************************
+ * 15,Nullify（净化模式）
+ * @bref：在实现某些功能的过程中，产生的中间产物，它们在发挥完应有的作用后，要动手回收（Nullify）。
+ * 示例中的test1,test2,test3,作为中间变量，为dom绑定完事件和填充完内容后，做了回收。
+ * 大千世界，茫茫互联网，各位发挥完自己的光和热，释放资源，不要做片刻留恋，不要带走一片云彩，请自我遁形，光荣圆寂！回归虚无之境！
+ * 应用广泛。打开脑洞，自由发散。
+ *************************************/
+
+//Nullify.js
+class Nullify {
+    fillContent() {
+        let test1 = document.getElementById("test1");
+        let test2 = document.getElementById("test2");
+        let test3 = document.getElementById("test3");
+
+        test1.onclick = function() {};
+        test2.onclick = function() {};
+        test3.onclick = function() {};
+
+        test1.innerHTML = 'TEST 1';
+        test2.innerHTML = 'TEST 2';
+        test3.innerHTML = 'TEST 3';
+
+        test1 = test2 = test3 = null; //中间变量回收
+    }
+}
+
+export default Nullify;
+
+//main.js
+import Nullify from './Nullify';
+
+var oNullify = new Nullify();
+oNullify.fillContent();
+
+//运行结果
+/**-----------------------start------------------------------
+
+TEST 1
+TEST 2
+TEST 3
+---------------------------end-----------------------------*/
+
+
+
+/*************************************
+ * 16,Observer（观察者模式）
+ * @bref：观察者模式属于行为型模式。定义对象间的一种一对多的依赖关系，当一个对象的状态发生改变时，
+ * 所有依赖于它的对象都得到通知并被自动更新。使用面向对象技术，可以将这种依赖关系弱化。
+ * 观察者和被观察者是抽象耦合的。 并建立一套触发机制。
+ * 现代mvvm框架大量使用了这个模式，常用于事件的触发和属性更新。
+ * es5,6中引入了defineProperty方法，使用了set和get函数来模拟这个模式
+ * 示例是一个天气测量情况。
+ * 应用如：等。打开脑洞，自由发散。
+ *************************************/
+
+//Displayable.js
+const Displayable = Sup => class extends Sup {
+    display() {
+        throw new Error('This method should be overwritten!');
+    }
+};
+
+//export default Displayable;
+
+//Observable.js
+const Observable = Sup => class extends Sup {
+    update() {
+        throw new Error("This method must be overwritten!");
+    };
+};
+
+//export default Observable;
+
+//Subject.js
+class Subject {
+    registerObserver() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    removeObserver() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    notifyObservers() {
+        throw new Error("This method must be overwritten!");
+    }
+}
+
+//export default Subject;
+
+//WeatherData.js
+//import Subject from './Subject';
+
+class WeatherData extends Subject {
+    constructor() {
+        super();
+        this.observers = {};
+        this.temperature = 0;
+        this.humidity = 0;
+        this.pressure = 0;
+    }
+
+    registerObserver(observer) {
+        this.observers[observer.id] = observer;
+    }
+
+    removeObserver(observer) {
+        delete this.observers[observer.id];
+    }
+
+    notifyObservers() {
+        for (let observerId in this.observers) {
+            if (this.observers.hasOwnProperty(observerId)) {
+                this.observers[observerId].update(this.temperature, this.humidity, this.pressure);
+            }
+        }
+    }
+
+    measurementsChanged() {
+        this.notifyObservers();
+    }
+
+    setMeasurements(temperature, humidity, pressure) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.pressure = pressure;
+
+        this.measurementsChanged(); //测量变化
+    }
+}
+
+//export default WeatherData;
+
+//CurrentConditionsDisplay.js
+// import Observable from './Observable';
+// import Displayable from './Displayable';
+
+class CurrentConditionsDisplay extends Observable(Displayable(Object)) {
+    constructor(subject) {
+        super();
+        this.temperature = 0;
+        this.humidity = 0;
+        this.pressure = 0;
+        this.subject = subject;
+        this.subject.registerObserver(this); //订阅
+    }
+
+    update(temperature, humidity, pressure) {
+        this.temperature = temperature;
+        this.humidity = humidity;
+        this.pressure = pressure;
+        this.display();
+    }
+
+    display() {
+        console.log("Current conditions: " + this.temperature + "F degrees and " + this.humidity + "% humidity.");
+    }
+}
+
+//export default CurrentConditionsDisplay;
+
+//main.js
+// import WeatherData from './WeatherData';
+// import CurrentConditionsDisplay from './CurrentConditionsDisplay';
+
+let oWeatherData = new WeatherData();
+new CurrentConditionsDisplay(oWeatherData);
+oWeatherData.setMeasurements(80, 65, 30.4);
+
+//运行结果
+/**-----------------------start------------------------------
+
+Current conditions: 80F degrees and 65% humidity.
+
+---------------------------end-----------------------------*/
+
+
+/*************************************
+ * 15,Proxy Pattern（代理模式）
+ * @bref：一个类代表另一个类的功能。这种类型的设计模式属于结构型模式。为其他对象提供一种代理以控制对这个对象的访问。
+ * es6中引入了Proxy类。极大的方便了我们实现代理和拦截功能。
+ * 示例是展示对查询书籍的过程做代理和拦截的。
+ * 应用如：等。打开脑洞，自由发散。
+ *************************************/
+
+//PublicLibrary.js
+class PublicLibrary {
+    constructor(books) {
+        this.catalog = {};
+        this.setCatalogFromBooks(books);
+    }
+
+    setCatalogFromBooks(books) {
+        books.forEach(book => {
+            this.catalog[book.getIsbn()] = {
+                book: book,
+                available: true
+            };
+        });
+    }
+    find(left, right) {
+        console.log("Enter find PublicLibrary proxy");
+        return left + right;
+    }
+    findBooks(query) {
+        console.log("Enter findBooks PublicLibrary");
+        let results = [];
+        for (let book in this.catalog) { //注：普通对象不能使用for..of遍历
+            if (query.match(book.getTitle()) || query.match(book.getAuthor())) {
+                results.push(book);
+            }
+        }
+        return results;
+    }
+
+    checkoutBook(book) {
+        let isbn = book.getIsbn();
+        book = this.catalog[isbn];
+        if (book) {
+            if (book.available) {
+                book.available = false;
+                return book;
+            } else {
+                throw new Error('PublicLibrary: book ' + book.getTitle() + ' is not currently available.');
+            }
+        } else {
+            throw new Error('PublicLibrary: book ' + book.getTitle() + ' not found.');
+        }
+    }
+
+    returnBook(book) {
+        let isbn = book.getIsbn();
+        book = this.catalog[isbn];
+        if (book) {
+            book.available = true;
+        } else {
+            throw new Error('PublicLibrary: book ' + book.getTitle() + ' not found.');
+        }
+    }
+}
+
+//export default PublicLibrary;
+
+//PublicLibraryProxy.js
+//import PublicLibrary from '../../common/PublicLibrary';
+
+class PublicLibraryProxy {
+    constructor(catalog = []) {
+        this.library = new PublicLibrary(catalog);
+    }
+
+    findBooks(query) {
+        console.log("Enter findBooks PublicLibraryProxy " + query);
+        return this.library.findBooks(query);
+    }
+
+    checkoutBook(book) {
+        return this.library.checkoutBook(book);
+    }
+
+    returnBook(book) {
+        return this.library.returnBook(book);
+    }
+}
+
+//export default PublicLibraryProxy;
+
+//PublicLibraryVirtualProxy.js
+//import PublicLibrary from '../../common/PublicLibrary';
+
+function initializeLibrary(instance) {
+    if (instance.library === null) {
+        instance.library = new PublicLibrary(instance.catalog);
+    }
+}
+
+class PublicLibraryVirtualProxy {
+    constructor(catalog = []) {
+        this.library = null;
+        this.catalog = catalog;
+    }
+
+    findBooks(query) {
+        console.log("Enter findBooks PublicLibraryVirtualProxy " + query);
+        initializeLibrary(this); //在这里init
+        return this.library.findBooks(query);
+    }
+
+    checkoutBook(book) {
+        initializeLibrary(this);
+        return this.library.checkoutBook(book);
+    }
+
+    returnBook(book) {
+        initializeLibrary(this);
+        return this.library.returnBook(book);
+    }
+}
+
+//export default PublicLibraryVirtualProxy;
+
+//main.js
+//import PublicLibraryProxy from './PublicLibraryProxy';
+//import PublicLibraryVirtualProxy from './PublicLibraryVirtualProxy';
+
+var oProxyLibrary = new PublicLibraryProxy();
+oProxyLibrary.findBooks('test');
+
+let oVirtualProxyLibrary = new PublicLibraryVirtualProxy();
+oVirtualProxyLibrary.findBooks('test2');
+
+//下边是es实现的代理
+let oPublicLibrary = new PublicLibrary([]);
+var handler = {
+    apply(target, ctx, args) {
+        console.log("I am the proxy");
+        return Reflect.apply(...arguments) * 2;
+    }
+};
+
+var pFind = new Proxy(oPublicLibrary.find, handler);
+pFind(1, 2);
+//运行结果
+/**-----------------------start------------------------------
+
+Enter findBooks PublicLibraryProxy test
+Enter findBooks PublicLibrary
+Enter findBooks PublicLibraryVirtualProxy test2
+Enter findBooks PublicLibrary
+
+I am the proxy
+Enter find PublicLibrary proxy
+6
 
 ---------------------------end-----------------------------*/
 
 
 
 
+
 /*************************************
- * 13,Factory（工厂模式）
+ * 16,Nullify（工厂模式）
  *@bref：。
  * 。
  * 应用如：等。打开脑洞，自由发散。
@@ -2398,26 +3059,7 @@ VM28442:25 Chop!
 
 
 /*************************************
- * 13,Factory（工厂模式）
- *@bref：。
- * 。
- * 应用如：等。打开脑洞，自由发散。
- *************************************/
-
-//运行结果
-/**-----------------------start------------------------------
-
-
-
----------------------------end-----------------------------*/
-
-
-
-
-
-
-/*************************************
- * 13,Factory（工厂模式）
+ * 15,Nullify（工厂模式）
  *@bref：。
  * 。
  * 应用如：等。打开脑洞，自由发散。
