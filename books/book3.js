@@ -3048,7 +3048,7 @@ Enter find PublicLibrary proxy
  * @bref：这种模式涉及到一个单一的类，该类负责创建自己的对象，同时确保只有单个对象被创建。
  * 这个类提供了一种访问其唯一的对象的方式，可以直接访问，不需要实例化该类的对象。
  * 
- * js中的单例模式，除了function，还有obj的。如对象字面量和命名空间。
+ * js中的单例模式，除了function，还有obj的。如：对象字面量和命名空间。
  * 
  * 应用如：等。打开脑洞，自由发散。
  *************************************/
@@ -3116,9 +3116,656 @@ console.log("oSingle1 is the same instance that oSingle2? " + (oSingle1 === oSin
 ---------------------------end-----------------------------*/
 
 
+/***************************************************************************
+ * 17,State（状态模式）
+ * @bref：类的行为是基于它的状态改变的。这种类型的设计模式属于行为型模式。
+ * 对象的行为依赖于它的状态（属性），并且可以根据它的状态改变而改变它的相关行为。
+ * 示例是一个文件下载的展示。状态模式应用广泛。常见的promise，redux，早期的falsh播放器等。
+ * 应用如：音视频播放器，文件下载，流程权限控制等。打开脑洞，自由发散。
+ ***************************************************************************/
+
+//State.js
+class State {
+    download() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    pause() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    fail() {
+        throw new Error("This method must be overwritten!");
+    }
+
+    finish() {
+        throw new Error("This method must be overwritten!");
+    }
+
+}
+
+//export default State;
+
+
+
+//DownloadPausedState.js
+//import State from './State';
+
+class DownloadPausedState extends State {
+    constructor(download) {
+        super();
+        this._download = download;
+    }
+
+    download() {
+        this._download.setState(this._download.getDownloadingState());
+        console.log("Continue Download!");
+    }
+
+    pause() {
+        throw new Error("You can't pause a paused download!");
+    }
+
+    fail() {
+        this._download.setState(this._download.getDownloadedFailedState());
+        console.log("Download has failed!");
+    }
+
+    finish() {
+        this._download.setState(this._download.getDownloadedState());
+        console.log("Download has finished!");
+    }
+}
+
+//export default DownloadPausedState;
+
+//DownloadingState.js
+//import State from './State';
+
+class DownloadingState extends State {
+    constructor(download) {
+        super();
+        this._download = download;
+    }
+
+    download() {
+        throw new Error("You can't download a file that is being downloaded already!");
+    }
+
+    pause() {
+        this._download.setState(this._download.getDownloadPausedState());
+        console.log("Pause download!");
+    }
+
+    fail() {
+        this._download.setState(this._download.getDownloadedFailedState());
+        console.log("Download has failed!");
+    }
+
+    finish() {
+        this._download.setState(this._download.getDownloadedState());
+        console.log("Download has finished!");
+    }
+}
+
+//export default DownloadingState;
+
+//DownloadFailedState.js
+//import State from './State';
+
+class DownloadFailedState extends State {
+    constructor(download) {
+        super();
+        this._download = download;
+    }
+
+    download() {
+        this._download.setState(this._download.getDownloadingState());
+        console.log("Try to Download again!");
+    }
+
+    pause() {
+        throw new Error("You can't pause a failed download!");
+    }
+
+    fail() {
+        throw new Error("A failed download can't fail itself!");
+    }
+
+    finish() {
+        throw new Error("A failed download is not finished!");
+    }
+}
+
+//export default DownloadFailedState;
+
+//DownloadedState.js
+//import State from './State';
+
+class DownloadedState extends State {
+    constructor(download) {
+        super();
+        this._download = download;
+    }
+
+    download() {
+        this._download.setState(this._download.getDownloadingState());
+        console.log("Download again!");
+    }
+
+    pause() {
+        throw new Error("You can't pause a downloaded file!");
+    }
+
+    fail() {
+        throw new Error("A downloaded file can't fail!");
+    }
+
+    finish() {
+        throw new Error("A downloaded file can't finish itself!");
+    }
+}
+
+//export default DownloadedState;
+
+//ReadyState.js
+//import State from './State';
+
+class ReadyState extends State {
+    constructor(download) {
+        super();
+        this._download = download;
+    }
+
+    download() {
+        this._download.setState(this._download.getDownloadingState());
+        console.log("Start Download!");
+    }
+
+    pause() {
+        throw new Error("You can't pause a not started download!");
+    }
+
+    fail() {
+        throw new Error("A download can't file if is not started!");
+    }
+
+    finish() {
+        throw new Error("A download can't finish if is not started!");
+    }
+}
+
+//export default ReadyState;
+
+//Download.js
+// import ReadyState from './states/ReadyState';
+// import DownloadingState from './states/DownloadingState';
+// import DownloadPausedState from './states/DownloadPausedState';
+// import DownloadedState from './states/DownloadedState';
+// import DownloadFailedState from './states/DownloadFailedState';
+
+class Download {
+    constructor() {
+        this.state = new ReadyState(this);
+    }
+
+    setState(state) {
+        this.state = state; //通过设置状态控制当前执行的状态类
+    }
+
+    download() {
+        this.state.download();
+    }
+
+    pause() {
+        this.state.pause();
+    }
+
+    fail() {
+        this.state.fail();
+    }
+
+    finish() {
+        this.state.finish();
+    }
+
+    getReadyState() {
+        return new ReadyState(this);
+    }
+
+    getDownloadingState() {
+        return new DownloadingState(this);
+    }
+
+    getDownloadPausedState() {
+        return new DownloadPausedState(this);
+    }
+
+    getDownloadedState() {
+        return new DownloadedState(this);
+    }
+
+    getDownloadedFailedState() {
+        return new DownloadFailedState(this);
+    }
+}
+
+//export default Download;
+
+//main.js
+//import Download from './Download';
+
+var oDownload = new Download();
+
+$("#download_button").click(function() {
+    oDownload.download();
+});
+$("#pause_button").click(function() {
+    oDownload.pause();
+});
+$("#resume_button").click(function() {
+    oDownload.download();
+});
+
+function $(id) {
+    return document.getElementById(id);
+}
+
+//index.html
+// <input type="button" value="download" id="download_button"/>
+// <input type="button" value="pause" id="pause_button"/>
+// <input type="button" value="resume" id="resume_button"/>
+//运行结果
+/**-----------------------start------------------------------
+[点击下载] Start Download!
+[点击暂停] Pause download!
+[点击继续] Continue Download!
+---------------------------end-----------------------------*/
+
+
+
+/***************************************************************************
+ * 15,Strategy（策略模式）
+ * @bref：一个类的行为或其算法可以在运行时更改。这种类型的设计模式属于行为型模式。
+ * 定义一系列的算法,把它们一个个封装起来, 并且按需使它们可相互替换。
+ * 示例是介绍了四种鸭子，他们飞翔和叫声的行为不同。
+ * 不同角色的职责不同，如kpi，演员，级别等具有相似性但种类差异，级别差异的事情。
+ * 每个人都是吃饭和上班的行为，但是吃的饭不同，工作的岗位有的是程序员，有的是行政等。
+ * 应用广泛。打开脑洞，自由发散。
+ ***************************************************************************/
+//FlyNoWay.js
+class FlyNoWay {
+    fly() {
+        //Don't do nothing.
+    }
+}
+
+//export default FlyNoWay;
+
+//FlyBehavior.js
+class FlyBehavior {
+    fly() {
+        throw new Error("This method must be overwritten");
+    }
+}
+
+//export default FlyBehavior;
+
+//Duck.js
+class Duck {
+    constructor() {
+        this.flyBehavior = null;
+        this.quackBehavior = null;
+    }
+
+    setFlyBehavior(flyBehavior) {
+        this.flyBehavior = flyBehavior;
+    }
+
+    setQuackBehavior(quackBehavior) {
+        this.quackBehavior = quackBehavior;
+    }
+
+    fly() {
+        this.flyBehavior.fly();
+    }
+
+    quack() {
+        this.quackBehavior.quack();
+    }
+
+    swim() {
+        console.log('Chop!');
+    }
+
+    display() {
+        throw new Error("This method must be overwritten!");
+    }
+}
+
+//export default Duck;
+
+
+//FlyWithWings.js
+//import FlyBehavior from './FlyBehavior';
+
+class FlyWithWings extends FlyBehavior {
+    fly() {
+        console.log('Flap!Flap!');
+    }
+}
+
+//export default FlyWithWings;
+
+
+//QuackBehavior.js
+class QuackBehavior {
+    quack() {
+        console.log('Quack!');
+    }
+}
+
+//export default QuackBehavior;
+
+
+//Quack.js
+//import QuackBehavior from './QuackBehavior';
+
+class Quack extends QuackBehavior {
+    quack() {
+        console.log('Quack!');
+    }
+}
+
+//export default Quack;
+
+//MuteQuack.js
+//import QuackBehavior from './QuackBehavior';
+
+class MuteQuack extends QuackBehavior {
+    quack() {
+        //Don't do nothing!
+    }
+}
+
+//export default MuteQuack;
+
+
+//Squeak.js
+//import QuackBehavior from './QuackBehavior';
+
+class Squeak extends QuackBehavior {
+    quack() {
+        console.log('Squeeze!');
+    }
+}
+
+//export default Squeak;
+
+
+
+//MallardDuck.js
+// import Duck from './Duck';
+// import FlyWithWings from './FlyWithWings';
+// import QuackBehavior from './QuackBehavior';
+
+class MallardDuck extends Duck {
+    constructor() {
+        super();
+        this.flyBehavior = new FlyWithWings();
+        this.quackBehavior = new QuackBehavior();
+    }
+
+    display() {
+        console.log('MallardDuck show');
+    }
+}
+
+//export default MallardDuck;
+
+//DecoyDuck.js
+// import Duck from './Duck';
+// import FlyNoWay from './FlyNoWay';
+// import MuteQuack from './MuteQuack';
+
+class DecoyDuck extends Duck {
+    constructor() {
+        super();
+        this.flyBehavior = new FlyNoWay();
+        this.quackBehavior = new MuteQuack();
+    }
+
+    display() {
+        console.log('DecoyDuck show');
+    }
+}
+
+//export default DecoyDuck;
+
+//RubberDuck.js
+// import Duck from './Duck';
+// import FlyNoWay from './FlyNoWay';
+// import Squeak from './Squeak';
+
+class RubberDuck extends Duck {
+    constructor() {
+        super();
+        this.flyBehavior = new FlyNoWay();
+        this.quackBehavior = new Squeak();
+    }
+
+    display() {
+        console.log("RubberDuck show");
+    }
+}
+
+//export default RubberDuck;
+
+//RedheadDuck.js
+// import Duck from './Duck';
+// import FlyWithWings from './FlyWithWings';
+// import Quack from './Quack';
+
+class RedheadDuck extends Duck {
+    constructor() {
+        super();
+        this.flyBehavior = new FlyWithWings();
+        this.quackBehavior = new Quack();
+    }
+
+    display() {
+        console.log("RedheadDuck show");
+    }
+}
+
+//export default RedheadDuck;
+
+
+
+//main.js
+// import MallardDuck from './MallardDuck';
+// import RedheadDuck from './RedheadDuck';
+// import RubberDuck from './RubberDuck';
+// import DecoyDuck from './DecoyDuck';
+
+var mallard = new MallardDuck();
+var redhead = new RedheadDuck();
+var rubber = new RubberDuck();
+var decoy = new DecoyDuck();
+
+mallard.quack();
+mallard.swim();
+mallard.fly();
+mallard.display();
+
+redhead.quack();
+redhead.swim();
+redhead.fly();
+redhead.display();
+
+rubber.quack();
+rubber.swim();
+rubber.fly();
+rubber.display();
+
+decoy.quack();
+decoy.swim();
+decoy.fly();
+decoy.display();
+
+
+
+
+//运行结果
+/**-----------------------start------------------------------
+
+
+- Quack!
+- Chop!
+- Flap!Flap!
+- MallardDuck show
+
+- Quack!
+- Chop!
+- Flap!Flap!
+- RedheadDuck show
+
+- Squeeze!
+- Chop!
+- RubberDuck show
+
+
+- Chop!
+- DecoyDuck show
+
+
+---------------------------end-----------------------------*/
+
+
+
+
+/**************************************************************************
+ * 19,Template（模板模式）
+ * @bref：一个抽象类公开定义了执行它的方法的方式/模板。它的子类可以按需要重写方法实现，
+ * 但调用将以抽象类中定义的方式进行。这种类型的设计模式属于行为型模式。
+ * 示例是茶和咖啡，并封装了他们泡制的流程模板。
+ * 一般单位的报销单据，流程都是固定的，可是使用这种模式。
+ * 应用广泛。打开脑洞，自由发散。
+ **************************************************************************/
+
+//CaffeineBeverage.js
+class CaffeineBeverage {
+    prepareRecipe() {
+        this.boilWater();
+        this.brew();
+        this.pourOnCup();
+        if (this.customerWantsCondiments()) {
+            this.addCondiments();
+        }
+    }
+
+    boilWater() {
+        console.log("Put water on fire until the water starts boiling!");
+    }
+
+    pourOnCup() {
+        console.log("Put beverage on Cup!");
+    }
+
+    brew() {
+        throw new Error("This method mus be overwritten!");
+    }
+
+    addCondiments() {
+        throw new Error("This method mus be overwritten!");
+    }
+
+    customerWantsCondiments() {
+        return true;
+    }
+}
+
+//export default CaffeineBeverage;
+
+//Tea.js
+//import CaffeineBeverage from './CaffeineBeverage';
+
+class Tea extends CaffeineBeverage {
+    brew() {
+        console.log("Steeping the tea!");
+    }
+
+    addCondiments() {
+        console.log("Adding lemon!");
+    }
+
+    customerWantsCondiments() {
+        return confirm("Do you want some lemon?");
+    }
+}
+
+//export default Tea;
+
+//Coffee.js
+//import CaffeineBeverage from './CaffeineBeverage';
+
+class Coffee extends CaffeineBeverage {
+    brew() {
+        console.log("Dripping Coffee through filter!");
+    }
+
+    addCondiments() {
+        console.log("Add Sugar and Milk!");
+    }
+
+    customerWantsCondiments() {
+        return confirm("Do you want sugar and milk?");
+    }
+}
+
+//export default Coffee;
+
+//main.js
+// import Coffee from './Coffee';
+// import Tea from './Tea';
+
+let oCoffee = new Coffee();
+oCoffee.prepareRecipe();
+console.log("*********************************************************");
+let oTea = new Tea();
+oTea.prepareRecipe();
+
+//运行结果
+/**-----------------------start------------------------------
+ - Put water on fire until the water starts boiling!
+- Dripping Coffee through filter!
+- Put beverage on Cup!
+- Add Sugar and Milk!
+- *********************************************************
+- Put water on fire until the water starts boiling!
+- Steeping the tea!
+- Put beverage on Cup!
+- Adding lemon!
+-----翻译成中文
+- 把水放上火，直到水沸腾！
+- 通过过滤器滴咖啡！
+- 把饮料放在杯子里
+- 加糖和牛奶！
+- ******************************************************* ********
+- 把水放上火，直到水沸腾！
+- 蘸茶！
+- 把饮料放在杯子里
+- 加柠檬！
+
+
+---------------------------end-----------------------------*/
+
+
+
+
 /*************************************
- * 15,Nullify（工厂模式）
- *@bref：。
+ * 20,*（*模式）
+ * @bref：。
  * 。
  * 应用如：等。打开脑洞，自由发散。
  *************************************/
