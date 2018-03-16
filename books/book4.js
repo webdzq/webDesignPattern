@@ -1,5 +1,5 @@
 /**
- * @bookname: 学习JavaScript设计模式
+ * @bookname: 学用JavaScript设计模式
  * @author :©Addy Osmani 2015。
  * @link:https://addyosmani.com/resources/essentialjsdesignpatterns/book/
  * @desc:设计模式是软件设计中常见问题的可重复使用的解决方案.可以用任何编程语言进行探索。
